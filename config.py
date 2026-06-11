@@ -19,6 +19,7 @@ CLASSIFICATION_PROMPT = os.environ.get(
     "Is there garbage in this image? Answer with yes or no.",
 )
 IMAGE_DETAIL = os.environ.get("IMAGE_DETAIL", "auto")
+USE_SIMULATED_PREDICTIONS = os.environ.get("USE_SIMULATED_PREDICTIONS", "false").lower() == "true"
 
 
 def require_openai_api_key():

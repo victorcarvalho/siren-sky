@@ -40,3 +40,9 @@ def classify_image_openai(client, image_path, model, prompt, detail="auto"):
 
 def classify_image_local(image_path, model, prompt, detail="auto"):
     pass
+
+def classify_image_simulated(image_path):
+    """Simulate garbage classification based on image path hash for reproducibility."""
+    import hashlib
+    hash_val = int(hashlib.md5(str(image_path).encode()).hexdigest(), 16)
+    return "Yes" if hash_val % 3 == 0 else "No"

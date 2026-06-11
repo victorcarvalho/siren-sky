@@ -5,11 +5,12 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
-from classifiers import classify_image_openai, create_openai_client
+from classifiers import classify_image_openai, classify_image_simulated, create_openai_client
 from config import (
     CLASSIFICATION_PROMPT,
     IMAGE_DETAIL,
     MODEL,
+    USE_SIMULATED_PREDICTIONS,
     require_openai_api_key,
 )
 from image_metadata import extract_image_attributes
@@ -31,6 +32,8 @@ VISIBLE_COLUMNS = [
 
 @st.cache_resource
 def get_client():
+    if USE_SIMULATED_PREDICTIONS:
+        return None
     return create_openai_client(require_openai_api_key())
 
 
@@ -93,6 +96,9 @@ def classify_record(record):
     image_path = save_image_bytes(record["file_name"], record["image_bytes"])
 
     try:
+        if USE_SIMULATED_PREDICTIONS:
+            return classify_image_simulated(image_path)
+        
         return classify_image_openai(
             client=get_client(),
             image_path=image_path,
