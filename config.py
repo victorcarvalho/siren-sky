@@ -21,6 +21,12 @@ CLASSIFICATION_PROMPT = os.environ.get(
 IMAGE_DETAIL = os.environ.get("IMAGE_DETAIL", "auto")
 USE_SIMULATED_PREDICTIONS = os.environ.get("USE_SIMULATED_PREDICTIONS", "false").lower() == "true"
 
+# Image preprocessing settings (to reduce token usage and API costs)
+PREPROCESS_IMAGES = os.environ.get("PREPROCESS_IMAGES", "true").lower() == "true"
+MAX_IMAGE_WIDTH = int(os.environ.get("MAX_IMAGE_WIDTH", "1024"))  # Resize width (pixels)
+MAX_IMAGE_HEIGHT = int(os.environ.get("MAX_IMAGE_HEIGHT", "1024"))  # Resize height (pixels)
+JPEG_QUALITY = int(os.environ.get("JPEG_QUALITY", "85"))  # JPEG compression quality (1-95)
+
 
 def require_openai_api_key():
     if not OPENAI_API_KEY:
