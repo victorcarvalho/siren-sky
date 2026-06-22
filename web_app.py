@@ -544,7 +544,6 @@ with upload_results_tab:
         "Enviar imagens do \"drone\" para classificação",
         type=SUPPORTED_UPLOAD_TYPES,
         accept_multiple_files=True,
-        max_upload_size=10,  # 10 MB
         help="Faça upload de imagens capturadas pelo drone para detectar a presença de lixo."
     )
 

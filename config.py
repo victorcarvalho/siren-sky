@@ -8,7 +8,7 @@ load_dotenv()
 
 PROJECT_ROOT = Path(__file__).parent
 DATASET_PATH = PROJECT_ROOT / os.environ.get("DATASET_PATH", "dataset")
-IMAGE_EXTENSIONS = {".jpg", ".jpeg"}
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 MODEL = os.environ.get("MODEL", "gpt-4.1-nano")
