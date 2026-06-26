@@ -1,6 +1,6 @@
 import pytest
 
-import config
+from backend import config
 
 
 def test_require_openai_api_key_raises_when_missing(monkeypatch):

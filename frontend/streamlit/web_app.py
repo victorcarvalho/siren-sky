@@ -1,19 +1,18 @@
-import tempfile
+import sys
 from pathlib import Path
 
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
-from classifiers import classify_image_openai, classify_image_simulated, create_openai_client
-from config import (
-    CLASSIFICATION_PROMPT,
-    IMAGE_DETAIL,
-    MODEL,
-    USE_SIMULATED_PREDICTIONS,
-    require_openai_api_key,
-)
-from image_metadata import extract_image_attributes
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
+from backend.classifiers import create_openai_client
+from backend.config import USE_SIMULATED_PREDICTIONS, require_openai_api_key
+from backend.image_metadata import extract_image_attributes
 
 
 SUPPORTED_UPLOAD_TYPES = ["jpg", "jpeg", "png", "webp"]
@@ -35,13 +34,6 @@ def get_client():
     if USE_SIMULATED_PREDICTIONS:
         return None
     return create_openai_client(require_openai_api_key())
-
-
-def save_image_bytes(file_name, image_bytes):
-    suffix = Path(file_name).suffix or ".jpg"
-    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
-        temp_file.write(image_bytes)
-        return Path(temp_file.name)
 
 
 def format_coordinate(value):
@@ -93,21 +85,12 @@ def sync_uploaded_files(uploaded_files):
 
 
 def classify_record(record):
-    image_path = save_image_bytes(record["file_name"], record["image_bytes"])
-
-    try:
-        if USE_SIMULATED_PREDICTIONS:
-            return classify_image_simulated(image_path)
-        
-        return classify_image_openai(
-            client=get_client(),
-            image_path=image_path,
-            model=MODEL,
-            prompt=CLASSIFICATION_PROMPT,
-            detail=IMAGE_DETAIL,
-        )
-    finally:
-        image_path.unlink(missing_ok=True)
+    return classify_image_bytes(
+        image_bytes=record["image_bytes"],
+        filename=record["file_name"],
+        client=get_client(),
+        settings=DEFAULT_SETTINGS,
+    )
 
 
 def update_alert_status(record):

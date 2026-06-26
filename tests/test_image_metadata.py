@@ -1,6 +1,6 @@
 from fractions import Fraction
 
-import image_metadata
+from backend import image_metadata
 
 
 def test_extract_image_attributes_returns_dimensions_and_format(image_file):

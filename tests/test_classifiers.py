@@ -1,6 +1,6 @@
 import base64
 
-import classifiers
+from backend import classifiers
 
 
 def test_encode_image_returns_base64(image_file):

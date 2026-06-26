@@ -9,7 +9,7 @@ def configure_mlflow(tracking_uri, experiment_name):
     except MlflowException as exc:
         raise RuntimeError(
             f"Could not connect to MLflow tracking server at {tracking_uri}. "
-            "Start the MLflow server first, or update TRACKING_URI in .env."
+            "Start the MLflow server first, or update TRACKING_URI in backend/.env."
         ) from exc
 
     mlflow.openai.autolog()

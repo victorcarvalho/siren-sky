@@ -1,15 +1,13 @@
-from classifiers import classify_image_openai, create_openai_client
-from config import (
-    CLASSIFICATION_PROMPT,
+from backend.classification_service import DEFAULT_SETTINGS, classify_image_path
+from backend.classifiers import create_openai_client
+from backend.config import (
     DATASET_PATH,
     EXPERIMENT_NAME,
-    IMAGE_DETAIL,
     IMAGE_EXTENSIONS,
-    MODEL,
     TRACKING_URI,
     require_openai_api_key,
 )
-from mlflow_tracking import configure_mlflow
+from experiments.mlflow_tracking import configure_mlflow
 
 
 def iter_images(dataset_path):
@@ -37,19 +35,19 @@ def print_summary(results):
 
 def main():
     configure_mlflow(TRACKING_URI, EXPERIMENT_NAME)
-    client = create_openai_client(require_openai_api_key())
+    client = None
+    if not DEFAULT_SETTINGS.use_simulated_predictions:
+        client = create_openai_client(require_openai_api_key())
     results = []
 
     for category, image_path in iter_images(DATASET_PATH):
         print(f"Processing: {image_path}...")
 
         try:
-            classification = classify_image_openai(
-                client=client,
+            classification = classify_image_path(
                 image_path=image_path,
-                model=MODEL,
-                prompt=CLASSIFICATION_PROMPT,
-                detail=IMAGE_DETAIL,
+                client=client,
+                settings=DEFAULT_SETTINGS,
             )
             print(f"  -> {classification}")
         except Exception as exc:

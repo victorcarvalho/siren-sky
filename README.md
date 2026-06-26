@@ -14,14 +14,24 @@ A Python-based image classification system that uses OpenAI's GPT-4 vision capab
 ## Project Structure
 
 ```
-├── main.py                  # Batch processing script for classifying entire datasets
-├── web_app.py              # Streamlit web application for interactive classification
-├── classifiers.py          # Image classification logic and OpenAI API integration
-├── config.py               # Configuration management and environment variables
-├── image_metadata.py       # Image metadata extraction utilities
-├── mlflow_tracking.py      # MLflow experiment tracking setup
-├── requirements.txt        # Python package dependencies
-├── .env                    # Environment configuration (see .env.example)
+├── backend/
+│   ├── api.py              # FastAPI service for image classification
+│   ├── classification_service.py # Shared classification orchestration
+│   ├── classifiers.py      # Image classification logic and OpenAI API integration
+│   ├── config.py           # Configuration management and environment variables
+│   ├── image_metadata.py   # Image metadata extraction utilities
+│   ├── requirements.txt    # Python package dependencies
+│   ├── schemas.py          # API request and response models
+│   ├── .env                # Environment configuration
+│   └── .env.example        # Example environment configuration
+├── experiments/
+│   └── mlflow_tracking.py  # MLflow experiment tracking setup
+├── frontend/
+│   └── streamlit/
+│       └── web_app.py      # Streamlit web application for interactive classification
+├── scripts/
+│   └── main.py             # Batch processing script for classifying entire datasets
+├── tests/                  # Test suite
 └── README.md              # This file
 ```
 
@@ -46,18 +56,18 @@ A Python-based image classification system that uses OpenAI's GPT-4 vision capab
 
 3. **Install dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r backend/requirements.txt
    ```
 
 4. **Configure environment variables**:
    ```bash
-   cp .env.example .env
+   cp backend/.env.example backend/.env
    ```
-   Then edit `.env` with your settings (see [Configuration](#configuration) below)
+   Then edit `backend/.env` with your settings (see [Configuration](#configuration) below)
 
 ## Configuration
 
-All configuration is managed through environment variables in the `.env` file:
+All configuration is managed through environment variables in the `backend/.env` file:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
@@ -76,7 +86,7 @@ All configuration is managed through environment variables in the `.env` file:
 Process all images in a dataset directory and log results to MLflow:
 
 ```bash
-python main.py
+python -m scripts.main
 ```
 
 Expected dataset structure:
@@ -98,10 +108,20 @@ Classification results will be printed to console and logged to MLflow.
 Run the Streamlit web interface:
 
 ```bash
-streamlit run web_app.py
+streamlit run frontend/streamlit/web_app.py
 ```
 
 Then open your browser to `http://localhost:8501`
+
+### FastAPI Service
+
+Run the API server:
+
+```bash
+uvicorn backend.api:app --reload
+```
+
+Then open `http://localhost:8000/health` to verify the service is running.
 
 **Features:**
 - Upload single images or batch process multiple files
@@ -122,7 +142,7 @@ Then navigate to `http://localhost:5000` to view experiment metrics and results.
 
 ## Testing Without API Keys
 
-Set `USE_SIMULATED_PREDICTIONS=true` in your `.env` file to test the application without making actual OpenAI API calls. This is useful for development and testing.
+Set `USE_SIMULATED_PREDICTIONS=true` in your `backend/.env` file to test the application without making actual OpenAI API calls. This is useful for development and testing.
 
 ## Environment Setup
 
@@ -135,14 +155,14 @@ To track experiments locally:
 mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns
 ```
 
-Update `.env` with:
+Update `backend/.env` with:
 ```
 TRACKING_URI=http://127.0.0.1:5000
 ```
 
 ## Dependencies
 
-See `requirements.txt` for the complete list. Key packages:
+See `backend/requirements.txt` for the complete list. Key packages:
 
 - **streamlit**: Web interface framework
 - **openai**: OpenAI API client
@@ -155,13 +175,13 @@ See `requirements.txt` for the complete list. Key packages:
 ## Troubleshooting
 
 **Issue: "OpenAI API key not found"**
-- Ensure `OPENAI_API_KEY` is set in your `.env` file
+- Ensure `OPENAI_API_KEY` is set in your `backend/.env` file
 - Or set it in your shell: `export OPENAI_API_KEY=sk-...`
 
 **Issue: MLflow connection error**
 - Verify MLflow server is running: `mlflow ui`
-- Check `TRACKING_URI` in `.env` matches your server address
+- Check `TRACKING_URI` in `backend/.env` matches your server address
 
 **Issue: "Dataset directory not found"**
-- Verify `DATASET_PATH` exists and is correctly specified in `.env`
+- Verify `DATASET_PATH` exists and is correctly specified in `backend/.env`
 - Use absolute or relative paths as needed

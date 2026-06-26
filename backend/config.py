@@ -4,9 +4,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-load_dotenv()
+BACKEND_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BACKEND_DIR.parent
 
-PROJECT_ROOT = Path(__file__).parent
+load_dotenv(PROJECT_ROOT / ".env")
+load_dotenv(BACKEND_DIR / ".env")
+
 DATASET_PATH = PROJECT_ROOT / os.environ.get("DATASET_PATH", "dataset")
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
@@ -31,7 +34,7 @@ JPEG_QUALITY = int(os.environ.get("JPEG_QUALITY", "85"))  # JPEG compression qua
 def require_openai_api_key():
     if not OPENAI_API_KEY:
         raise RuntimeError(
-            "OPENAI_API_KEY is not set. Create a .env file with OPENAI_API_KEY=your_api_key_here "
+            "OPENAI_API_KEY is not set. Create backend/.env with OPENAI_API_KEY=your_api_key_here "
             "or set the environment variable before running."
         )
 
