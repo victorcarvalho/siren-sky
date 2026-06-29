@@ -14,10 +14,16 @@ def iter_images(dataset_path):
     if not dataset_path.exists():
         raise FileNotFoundError(f"Dataset directory not found: {dataset_path}")
 
+    # Yield images in subdirectories (nested categories)
     for category_path in sorted(path for path in dataset_path.iterdir() if path.is_dir()):
         for image_path in sorted(category_path.iterdir()):
             if image_path.suffix.lower() in IMAGE_EXTENSIONS:
                 yield category_path.name, image_path
+
+    # Yield images directly in the root dataset directory (flat structure)
+    for image_path in sorted(path for path in dataset_path.iterdir() if path.is_file()):
+        if image_path.suffix.lower() in IMAGE_EXTENSIONS:
+            yield "default", image_path
 
 
 def print_summary(results):

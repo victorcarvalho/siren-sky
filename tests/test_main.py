@@ -9,8 +9,9 @@ def test_iter_images_returns_supported_files_in_sorted_order(dataset_root):
     cat_jpg = cat_dir / "a.jpg"
     dog_webp = dog_dir / "c.webp"
     ignored = dog_dir / "notes.txt"
+    flat_jpg = dataset_root / "d.jpg"
 
-    for path in [cat_png, cat_jpg, dog_webp, ignored]:
+    for path in [cat_png, cat_jpg, dog_webp, ignored, flat_jpg]:
         path.write_bytes(b"test")
 
     results = list(main.iter_images(dataset_root))
@@ -19,6 +20,7 @@ def test_iter_images_returns_supported_files_in_sorted_order(dataset_root):
         ("cats", cat_jpg),
         ("cats", cat_png),
         ("dogs", dog_webp),
+        ("default", flat_jpg),
     ]
 
 
