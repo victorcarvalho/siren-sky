@@ -4,14 +4,14 @@ A Python-based image classification system that uses OpenAI's GPT-4 vision capab
 
 ## Features
 
-- **Batch Image Processing**: Classify entire image datasets with automated analysis
-- **Interactive Web Interface**: Streamlit-based UI for uploading and classifying images in real-time
-- **Simulated Predictions**: Test the application without API calls using simulated predictions
-- **Experiment Tracking**: MLflow integration for tracking and comparing classification experiments
-- **Image Metadata Extraction**: Automatically extract and display image properties (dimensions, format, EXIF data)
-- **Geolocation Support**: Display image locations on an interactive map when available
+- **Batch image processing**: Classify entire image datasets with automated analysis
+- **Interactive web interface**: Streamlit-based UI for uploading and classifying images in real-time
+- **Simulated predictions**: Test the application without API calls using simulated predictions
+- **Experiment tracking**: MLflow integration for tracking and comparing classification experiments
+- **Image metadata extraction**: Automatically extract and display image properties (dimensions, format, EXIF data)
+- **Geolocation support**: Display image locations on an interactive map when available
 
-## Project Structure
+## Project structure
 
 ```
 ├── backend/
@@ -81,7 +81,7 @@ All configuration is managed through environment variables in the `backend/.env`
 
 ## Usage
 
-### Batch Processing
+### Batch processing
 
 Process all images in a dataset directory and log results to MLflow:
 
@@ -103,7 +103,7 @@ dataset/
 
 Classification results will be printed to console and logged to MLflow.
 
-### Interactive Web Application
+### Interactive web application
 
 Run the Streamlit web interface:
 
@@ -113,7 +113,7 @@ streamlit run frontend/streamlit/web_app.py
 
 Then open your browser to `http://localhost:8501`
 
-### FastAPI Service
+### FastAPI service
 
 Run the API server:
 
@@ -130,7 +130,7 @@ Then open `http://localhost:8000/health` to verify the service is running.
 - See geolocation on interactive map
 - Toggle between simulated and live API predictions
 
-## MLflow Tracking
+## MLflow tracking
 
 To view experiment tracking results, start the MLflow server:
 
@@ -140,13 +140,13 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db
 
 Then navigate to `http://localhost:5000` to view experiment metrics and results.
 
-## Testing Without API Keys
+## Testing without API keys
 
 Set `USE_SIMULATED_PREDICTIONS=true` in your `backend/.env` file to test the application without making actual OpenAI API calls. This is useful for development and testing.
 
-## Environment Setup
+## Environment setup
 
-### Using a Local MLflow Server
+### Using a local MLflow server
 
 To track experiments locally:
 
