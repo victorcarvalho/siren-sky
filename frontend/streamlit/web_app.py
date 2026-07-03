@@ -9,24 +9,29 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+# Also add the script's directory to sys.path for importing local modules like utils.py
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
 from backend.classifiers import create_openai_client
 from backend.config import USE_SIMULATED_PREDICTIONS, require_openai_api_key
-from backend.image_metadata import extract_image_attributes
 
+from utils import (
+    build_image_record,
+    format_coordinate,
+    get_alert_records,
+    get_display_classification,
+    get_marker_color,
+    get_results_dataframe,
+    get_upload_signature,
+    is_alert_record,
+    is_garbage,
+    update_alert_status,
+)
 
 SUPPORTED_UPLOAD_TYPES = ["jpg", "jpeg", "png", "webp"]
-VISIBLE_COLUMNS = [
-    "file_name",
-    "format",
-    "size_kb",
-    "width",
-    "height",
-    "latitude",
-    "longitude",
-    "classification",
-    "alert_status",
-]
 
 
 @st.cache_resource
@@ -36,39 +41,7 @@ def get_client():
     return create_openai_client(require_openai_api_key())
 
 
-def format_coordinate(value):
-    if value is None:
-        return None
-    return round(value, 6)
-
-
-def is_garbage(classification):
-    return (classification or "").strip().lower().startswith("yes")
-
-
-def build_image_record(uploaded_file, index):
-    image_bytes = uploaded_file.getvalue()
-    attributes = extract_image_attributes(image_bytes)
-
-    return {
-        "id": f"{index}-{uploaded_file.name}-{len(image_bytes)}",
-        "file_name": uploaded_file.name,
-        "format": attributes["format"],
-        "size_kb": round(len(image_bytes) / 1024, 1),
-        "width": attributes["width"],
-        "height": attributes["height"],
-        "latitude": format_coordinate(attributes["latitude"]),
-        "longitude": format_coordinate(attributes["longitude"]),
-        "classification": None,
-        "alert_status": "Pendente",
-        "review_status": "Não revisado",
-        "notes": "",
-        "image_bytes": image_bytes,
-    }
-
-
-def get_upload_signature(uploaded_files):
-    return tuple((file.name, len(file.getvalue())) for file in uploaded_files)
+# Helper functions migrated to utils.py
 
 
 def sync_uploaded_files(uploaded_files):
@@ -93,56 +66,7 @@ def classify_record(record):
     )
 
 
-def update_alert_status(record):
-    if record["classification"] is None:
-        record["alert_status"] = "Pendente"
-    elif record["classification"].startswith("Error:"):
-        record["alert_status"] = "Erro"
-    elif is_garbage(record["classification"]) and record["latitude"] and record["longitude"]:
-        record["alert_status"] = "Novo"
-    elif is_garbage(record["classification"]):
-        record["alert_status"] = "GPS ausente"
-    else:
-        record["alert_status"] = "Sem alerta"
-
-
-def get_results_dataframe(records):
-    return pd.DataFrame([{key: record[key] for key in VISIBLE_COLUMNS} for record in records])
-
-
-def get_alert_records(records):
-    return [
-        record
-        for record in records
-        if record["alert_status"] in {"Novo", "Revisado", "Resolvido", "GPS ausente"}
-    ]
-
-
-def is_alert_record(record):
-    return record["alert_status"] in {"Novo", "Revisado", "Resolvido", "GPS ausente"}
-
-
-def get_marker_color(record):
-    if record["alert_status"] == "Resolvido":
-        return [25, 135, 84, 190]
-    if record["review_status"] == "Revisado":
-        return [255, 193, 7, 190]
-    if record["alert_status"] == "Novo":
-        return [220, 53, 69, 210]
-    if record["alert_status"] == "GPS ausente":
-        return [108, 117, 125, 190]
-    return [13, 110, 253, 160]
-
-
-def get_display_classification(classification):
-    if classification is None or classification == "":
-        return "-"
-    if classification.startswith("Error:"):
-        return classification
-    if is_garbage(classification):
-        return "Com lixo"
-    else:
-        return "Sem lixo"
+# Helper functions migrated to utils.py
 
 
 def show_summary(records):
@@ -364,154 +288,10 @@ st.set_page_config(
 )
 
 # Custom CSS styling matching the logo theme (dark blue, white, and light blue)
-st.markdown("""
-<style>
-    /* Primary color scheme from logo */
-    :root {
-        --primary-dark: #003f7f;
-        --primary-light: #0066cc;
-        --accent-light: #87ceeb;
-        --text-light: #ffffff;
-        --text-dark: #003f7f;
-        --border-color: #0066cc;
-    }
-    
-    /* Main container */
-    .main {
-        background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f7 100%);
-    }
-    
-    /* Header styling */
-    h1, h2, h3 {
-        color: #003f7f !important;
-        font-weight: 700;
-    }
-    
-    /* Title */
-    .stTitle {
-        color: #003f7f !important;
-        text-shadow: 0 2px 4px rgba(0, 63, 127, 0.1);
-    }
-    
-    /* Tabs styling */
-    .stTabs [data-baseweb="tab-list"] button {
-        color: #003f7f;
-        font-weight: 600;
-        background-color: transparent !important;
-    }
-    
-    .stTabs [data-baseweb="tab-list"] button:hover {
-        background-color: transparent !important;
-        color: #0066cc;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        color: #0066cc !important;
-        background-color: transparent !important;
-        border-bottom: 2px solid #0066cc !important;
-    }
-    
-    /* Buttons */
-    .stButton > button {
-        background: linear-gradient(135deg, #0066cc 0%, #003f7f 100%);
-        color: white;
-        font-weight: 600;
-        border: none;
-        border-radius: 6px;
-    }
-    
-    .stButton > button:hover {
-        background: linear-gradient(135deg, #0052a3 0%, #003366 100%);
-        box-shadow: 0 4px 8px rgba(0, 63, 127, 0.3);
-    }
-    
-    button[kind="primary"] {
-        background: linear-gradient(135deg, #0066cc 0%, #003f7f 100%) !important;
-    }
-    
-    /* Metrics styling */
-    .stMetric {
-        background-color: #ffffff;
-        padding: 16px;
-        border-radius: 8px;
-        border-left: 4px solid #0066cc;
-        box-shadow: 0 2px 4px rgba(0, 63, 127, 0.1);
-    }
-    
-    .stMetricLabel {
-        color: #003f7f;
-        font-weight: 600;
-    }
-    
-    .stMetricValue {
-        color: #0066cc;
-        font-weight: 700;
-    }
-    
-    /* Container borders */
-    .stContainer {
-        border-color: #0066cc !important;
-    }
-    
-    /* Info messages */
-    .stInfo {
-        background-color: #e8f0f7 !important;
-        border-left: 4px solid #0066cc !important;
-        color: #003f7f !important;
-    }
-    
-    /* Dataframe styling */
-    .stDataFrame {
-        border: 1px solid #0066cc !important;
-    }
-    
-    .stDataFrame th {
-        background-color: #003f7f !important;
-        color: white !important;
-        font-weight: 600;
-    }
-    
-    /* Links */
-    a {
-        color: #0066cc !important;
-    }
-    
-    a:hover {
-        color: #003f7f !important;
-    }
-    
-    /* Radio buttons */
-    .stRadio {
-        color: #003f7f;
-    }
-    
-    .stRadio > label {
-        font-weight: 500;
-        color: #003f7f;
-    }
-    
-    /* File uploader */
-    .stFileUploader section {
-        border: 2px dashed #0066cc;
-        border-radius: 8px;
-        background-color: #f8fbff;
-    }
-    
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #003f7f 0%, #0052a3 100%);
-    }
-    
-    [data-testid="stSidebar"] label {
-        color: white !important;
-    }
-    
-    [data-testid="stSidebar"] .stRadio {
-        color: white;
-    }
-    
-</style>
-""", unsafe_allow_html=True)
+css_path = Path(__file__).parent / "style.css"
+if css_path.exists():
+    with open(css_path, "r", encoding="utf-8") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 st.title("🌊 SirenSky")
 
