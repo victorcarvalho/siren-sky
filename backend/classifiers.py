@@ -1,11 +1,13 @@
 import base64
 import mimetypes
 
+import openai
 from openai import OpenAI
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 
-def create_openai_client(api_key):
-    return OpenAI(api_key=api_key)
+def create_openai_client(api_key, timeout=15.0):
+    return OpenAI(api_key=api_key, timeout=timeout)
 
 
 def encode_image(image_path):
@@ -17,6 +19,16 @@ def get_image_mime_type(image_path):
     return mime_type or "image/jpeg"
 
 
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=2, max=10),
+    retry=retry_if_exception_type((
+        openai.APIConnectionError,
+        openai.APITimeoutError,
+        openai.RateLimitError
+    )),
+    reraise=True
+)
 def classify_image_openai(client, image_path, model, prompt, detail="auto"):
     base64_image = encode_image(image_path)
     mime_type = get_image_mime_type(image_path)

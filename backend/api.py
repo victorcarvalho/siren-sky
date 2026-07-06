@@ -3,6 +3,7 @@
 import base64
 import binascii
 
+import openai
 from fastapi import FastAPI, File, UploadFile, HTTPException
 import uvicorn
 
@@ -67,6 +68,14 @@ async def classify(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
+    except openai.APITimeoutError as e:
+        raise HTTPException(status_code=504, detail=f"OpenAI API request timed out: {str(e)}")
+    except openai.APIConnectionError as e:
+        raise HTTPException(status_code=503, detail=f"OpenAI API connection failed: {str(e)}")
+    except openai.RateLimitError as e:
+        raise HTTPException(status_code=429, detail=f"OpenAI API rate limit exceeded: {str(e)}")
+    except openai.APIError as e:
+        raise HTTPException(status_code=502, detail=f"OpenAI API error: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification failed: {str(e)}")
 
@@ -103,6 +112,14 @@ async def classify_base64(image_data: Base64ClassificationRequest):
         raise HTTPException(status_code=400, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
+    except openai.APITimeoutError as e:
+        raise HTTPException(status_code=504, detail=f"OpenAI API request timed out: {str(e)}")
+    except openai.APIConnectionError as e:
+        raise HTTPException(status_code=503, detail=f"OpenAI API connection failed: {str(e)}")
+    except openai.RateLimitError as e:
+        raise HTTPException(status_code=429, detail=f"OpenAI API rate limit exceeded: {str(e)}")
+    except openai.APIError as e:
+        raise HTTPException(status_code=502, detail=f"OpenAI API error: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification failed: {str(e)}")
 

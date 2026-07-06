@@ -31,6 +31,13 @@ def is_garbage(classification):
     return (classification or "").strip().lower().startswith("yes")
 
 
+def is_error_classification(classification):
+    if not classification:
+        return False
+    return classification.startswith("Error:") or classification.startswith("Erro:")
+
+
+
 def build_image_record(uploaded_file, index):
     image_bytes = uploaded_file.getvalue()
     attributes = extract_image_attributes(image_bytes)
@@ -59,7 +66,7 @@ def get_upload_signature(uploaded_files):
 def update_alert_status(record):
     if record["classification"] is None:
         record["alert_status"] = "Pendente"
-    elif record["classification"].startswith("Error:"):
+    elif is_error_classification(record["classification"]):
         record["alert_status"] = "Erro"
     elif is_garbage(record["classification"]) and record["latitude"] and record["longitude"]:
         record["alert_status"] = "Novo"
@@ -100,9 +107,33 @@ def get_marker_color(record):
 def get_display_classification(classification):
     if classification is None or classification == "":
         return "-"
-    if classification.startswith("Error:"):
+    if is_error_classification(classification):
         return classification
     if is_garbage(classification):
         return "Com lixo"
     else:
         return "Sem lixo"
+
+
+def get_status_badge_html(status):
+    status_str = str(status or "").strip()
+    status_lower = status_str.lower()
+
+    if not status_str:
+        return ""
+
+    badge_class = "status-badge-sem-alerta"
+    if status_lower == "pendente":
+        badge_class = "status-badge-pendente"
+    elif status_lower == "novo":
+        badge_class = "status-badge-novo"
+    elif status_lower == "revisado":
+        badge_class = "status-badge-revisado"
+    elif status_lower == "resolvido":
+        badge_class = "status-badge-resolvido"
+    elif status_lower == "gps ausente":
+        badge_class = "status-badge-gps-ausente"
+    elif status_lower.startswith("erro"):
+        badge_class = "status-badge-erro"
+
+    return f'<span class="status-badge {badge_class}">{status_str}</span>'

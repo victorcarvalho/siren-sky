@@ -1,4 +1,3 @@
-import pytest
 from frontend.streamlit.utils import (
     format_coordinate,
     is_garbage,
@@ -7,6 +6,7 @@ from frontend.streamlit.utils import (
     is_alert_record,
     get_marker_color,
     get_display_classification,
+    get_status_badge_html,
 )
 
 
@@ -33,10 +33,14 @@ def test_update_alert_status():
     update_alert_status(r1)
     assert r1["alert_status"] == "Pendente"
 
-    # 2. Classification starts with "Error:" -> Erro
+    # 2. Classification starts with "Error:" or "Erro:" -> Erro
     r2 = {"classification": "Error: Timeout", "latitude": 1.0, "longitude": 2.0}
     update_alert_status(r2)
     assert r2["alert_status"] == "Erro"
+
+    r2_pt = {"classification": "Erro: Timeout", "latitude": 1.0, "longitude": 2.0}
+    update_alert_status(r2_pt)
+    assert r2_pt["alert_status"] == "Erro"
 
     # 3. Classification is Yes, GPS present -> Novo
     r3 = {"classification": "Yes, litter detected", "latitude": -23.123, "longitude": -45.456}
@@ -93,5 +97,18 @@ def test_get_display_classification():
     assert get_display_classification(None) == "-"
     assert get_display_classification("") == "-"
     assert get_display_classification("Error: API limit reached") == "Error: API limit reached"
+    assert get_display_classification("Erro: Conexao falhou") == "Erro: Conexao falhou"
     assert get_display_classification("Yes, trash detected") == "Com lixo"
     assert get_display_classification("No trash") == "Sem lixo"
+
+
+def test_get_status_badge_html():
+    assert get_status_badge_html(None) == ""
+    assert get_status_badge_html("") == ""
+    assert "status-badge-pendente" in get_status_badge_html("Pendente")
+    assert "status-badge-novo" in get_status_badge_html("Novo")
+    assert "status-badge-revisado" in get_status_badge_html("Revisado")
+    assert "status-badge-resolvido" in get_status_badge_html("Resolvido")
+    assert "status-badge-gps-ausente" in get_status_badge_html("GPS ausente")
+    assert "status-badge-erro" in get_status_badge_html("Erro: API error")
+    assert "status-badge-sem-alerta" in get_status_badge_html("Sem alerta")

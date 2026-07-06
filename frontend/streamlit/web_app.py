@@ -29,6 +29,7 @@ from utils import (
     is_alert_record,
     is_garbage,
     update_alert_status,
+    get_status_badge_html,
 )
 
 SUPPORTED_UPLOAD_TYPES = ["jpg", "jpeg", "png", "webp"]
@@ -69,6 +70,29 @@ def classify_record(record):
 # Helper functions migrated to utils.py
 
 
+def show_empty_state():
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 40px 20px; background-color: #ffffff; border-radius: 8px; border: 1px dashed #0066cc; margin-top: 20px;">
+            <span style="font-size: 4rem;">🛸</span>
+            <h3 style="color: #003f7f; margin-top: 15px; margin-bottom: 5px;">Nenhuma imagem carregada</h3>
+            <p style="color: #666666; max-width: 500px; margin: 0 auto 20px auto; font-size: 0.95rem;">
+                Envie as fotos capturadas pelo drone para detectar automaticamente focos de lixo e gerar alertas de geolocalização.
+            </p>
+            <div style="font-size: 0.85rem; text-align: left; max-width: 400px; margin: 0 auto; color: #555555; background-color: #f8fbff; padding: 15px; border-radius: 6px;">
+                <strong>Como começar:</strong>
+                <ol style="margin-top: 5px; margin-bottom: 0; padding-left: 20px;">
+                    <li>Arraste e solte ou clique para enviar imagens no painel acima.</li>
+                    <li>Clique no botão <strong>"Classificar imagens"</strong>.</li>
+                    <li>Acesse a aba <strong>"Alertas"</strong> para visualizar o mapa interativo.</li>
+                </ol>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def show_summary(records):
     processed = sum(record["classification"] is not None for record in records)
     garbage = sum(is_garbage(record["classification"]) for record in records)
@@ -106,27 +130,17 @@ def show_results_table(records):
 
     for record in records:
         columns = st.columns(widths)
-        is_alert = is_alert_record(record)
         
-        # Use markdown with red and bold styling for alert rows
-        if is_alert:
-            columns[0].markdown(f":red[**{record['file_name']}**]")
-            columns[1].markdown(f":red[**{record['size_kb']}**]")
-            columns[2].markdown(f":red[**{record['width']}**]")
-            columns[3].markdown(f":red[**{record['height']}**]")
-            columns[4].markdown(f":red[**{record['latitude']}**]")
-            columns[5].markdown(f":red[**{record['longitude']}**]")
-            columns[6].markdown(f":red[**{get_display_classification(record['classification'])}**]")
-            columns[7].markdown(f":red[**{record['alert_status']}**]")
-        else:
-            columns[0].write(record["file_name"])
-            columns[1].write(record["size_kb"])
-            columns[2].write(record["width"])
-            columns[3].write(record["height"])
-            columns[4].write(record["latitude"])
-            columns[5].write(record["longitude"])
-            columns[6].write(get_display_classification(record["classification"]))
-            columns[7].write(record["alert_status"])
+        columns[0].write(record["file_name"])
+        columns[1].write(record["size_kb"])
+        columns[2].write(record["width"])
+        columns[3].write(record["height"])
+        columns[4].write(record["latitude"] if record["latitude"] is not None else "-")
+        columns[5].write(record["longitude"] if record["longitude"] is not None else "-")
+        columns[6].write(get_display_classification(record["classification"]))
+        
+        # Display the custom colored status pill badge
+        columns[7].markdown(get_status_badge_html(record["alert_status"]), unsafe_allow_html=True)
 
         if columns[8].button("Visualizar", key=f"view-result-{record['id']}"):
             st.session_state["selected_image_id"] = record["id"]
@@ -174,13 +188,7 @@ def show_alert_map(records):
         st.info("Os alertas de lixo serão exibidos no mapa.")
         return
 
-    map_style_choice = st.radio(
-        "Mapa",
-        ["Claro", "Escuro"],
-        horizontal=True,
-        key="map_style_choice",
-    )
-    map_style = "light" if map_style_choice == "Claro" else "dark"
+    map_style = "light"
 
     map_rows = pd.DataFrame(
         [
@@ -244,10 +252,11 @@ def show_alert_list(records):
             columns = st.columns([1.2, 2, 1.2, 1.2])
             columns[0].image(record["image_bytes"], width="stretch")
             columns[1].markdown(f"**{record['file_name']}**")
+            columns[1].markdown(get_status_badge_html(record["alert_status"]), unsafe_allow_html=True)
             columns[1].write(f"Classificação: {get_display_classification(record['classification'])}")
-            columns[1].write(f"Localização: {record['latitude']}, {record['longitude']}")
+            columns[1].write(f"Localização: {record['latitude'] or '-'}, {record['longitude'] or '-'}")
             columns[1].write(f"Notas: {record['notes'] or '-'}")
-            columns[2].metric("Alerta", record["alert_status"])
+            
             columns[2].metric("Revisão", record["review_status"])
 
             if columns[3].button("Revisar", key=f"review-{record['id']}"):
@@ -281,10 +290,10 @@ def classify_records(records):
 
 
 st.set_page_config(
-    page_title="Siren", 
-    page_icon="S", 
+    page_title="SirenSky", 
+    page_icon="🌊", 
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS styling matching the logo theme (dark blue, white, and light blue)
@@ -319,7 +328,7 @@ with upload_results_tab:
     
     records = st.session_state["records"]
     if not records:
-        st.info("Envie as imagens do \"drone\".")
+        show_empty_state()
     else:
         show_summary(records)
         show_results_table(records)
@@ -328,8 +337,27 @@ with upload_results_tab:
 with alerts_tab:
     records = st.session_state["records"]
     if not records:
-        st.info("Envie e classifique as imagens do \"drone\".")
+        show_empty_state()
     else:
-        show_summary(records)
-        show_alert_map(records)
-        show_alert_list(records)
+        # Alert tab filter controls
+        st.markdown("### 🔍 Filtrar Alertas")
+        alerts_only = get_alert_records(records)
+        if not alerts_only:
+            st.info("Sem alertas de lixo por enquanto. Envie e classifique as imagens no painel principal.")
+        else:
+            available_statuses = sorted(list({r["alert_status"] for r in alerts_only}))
+            selected_statuses = st.multiselect(
+                "Filtrar por status do alerta:",
+                options=available_statuses,
+                default=available_statuses,
+                key="alert_status_filter"
+            )
+            
+            filtered_records = [r for r in records if r["alert_status"] in selected_statuses]
+            
+            if filtered_records:
+                show_summary(filtered_records)
+                show_alert_map(filtered_records)
+                show_alert_list(filtered_records)
+            else:
+                st.warning("Nenhum alerta corresponde aos filtros selecionados.")

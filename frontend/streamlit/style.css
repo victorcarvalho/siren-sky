@@ -141,3 +141,50 @@ a:hover {
 [data-testid="stSidebar"] .stRadio {
     color: white;
 }
+
+/* Status Pill Badges */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.status-badge-pendente {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+}
+
+.status-badge-novo {
+    background-color: #fee2e2 !important;
+    color: #b91c1c !important;
+}
+
+.status-badge-revisado {
+    background-color: #fef3c7 !important;
+    color: #b45309 !important;
+}
+
+.status-badge-resolvido {
+    background-color: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+.status-badge-gps-ausente {
+    background-color: #f3f4f6 !important;
+    color: #4b5563 !important;
+}
+
+.status-badge-erro {
+    background-color: #fee2e2 !important;
+    color: #b91c1c !important;
+    border: 1px dashed #ef4444 !important;
+}
+
+.status-badge-sem-alerta {
+    background-color: #f3f4f6 !important;
+    color: #9ca3af !important;
+}
