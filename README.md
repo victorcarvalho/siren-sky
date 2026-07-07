@@ -130,6 +130,14 @@ Then open `http://localhost:8000/health` to verify the service is running.
 - See geolocation on interactive map
 - Toggle between simulated and live API predictions
 
+## Running tests
+
+Run the unit and integration tests using pytest (make sure the project root is added to your Python path):
+
+```bash
+PYTHONPATH=. pytest
+```
+
 ## MLflow tracking
 
 To view experiment tracking results, start the MLflow server:
