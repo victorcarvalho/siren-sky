@@ -255,7 +255,6 @@ def show_alert_list(records):
             columns[1].markdown(get_status_badge_html(record["alert_status"]), unsafe_allow_html=True)
             columns[1].write(f"Classificação: {get_display_classification(record['classification'])}")
             columns[1].write(f"Localização: {record['latitude'] or '-'}, {record['longitude'] or '-'}")
-            columns[1].write(f"Notas: {record['notes'] or '-'}")
             
             columns[2].metric("Revisão", record["review_status"])
 
