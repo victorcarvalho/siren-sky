@@ -39,6 +39,7 @@ A Python-based image classification system that uses OpenAI's GPT-4 vision capab
 For more in-depth system details and planning, see:
 * [SirenSky architecture](docs/ARCHITECTURE.md)
 * [SirenSky project roadmap](docs/ROADMAP.md)
+* [SirenSky deployment guide](docs/deployment.md)
 
 ## Requirements
 
