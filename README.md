@@ -1,4 +1,4 @@
-# Siren Sky - Image Garbage Classification System
+# Siren Sky - Image garbage classification system
 
 A Python-based image classification system that uses OpenAI's GPT-4 vision capabilities to detect garbage in images. Features both batch processing and an interactive Streamlit web application for real-time classification with MLflow experiment tracking.
 
@@ -14,6 +14,7 @@ A Python-based image classification system that uses OpenAI's GPT-4 vision capab
 ## Project structure
 
 ```
+├── docs/                   # System architecture and roadmap documentation
 ├── backend/
 │   ├── api.py              # FastAPI service for image classification
 │   ├── classification_service.py # Shared classification orchestration
@@ -34,6 +35,10 @@ A Python-based image classification system that uses OpenAI's GPT-4 vision capab
 ├── tests/                  # Test suite
 └── README.md              # This file
 ```
+
+For more in-depth system details and planning, see:
+* [SirenSky architecture](docs/ARCHITECTURE.md)
+* [SirenSky project roadmap](docs/ROADMAP.md)
 
 ## Requirements
 

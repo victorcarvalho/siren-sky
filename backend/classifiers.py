@@ -54,7 +54,13 @@ def classify_image_local(image_path, model, prompt, detail="auto"):
     pass
 
 def classify_image_simulated(image_path):
-    """Simulate garbage classification based on image path hash for reproducibility."""
+    """Simulate garbage classification based on image content hash for reproducibility with latency delay."""
     import hashlib
-    hash_val = int(hashlib.md5(str(image_path).encode()).hexdigest(), 16)
+    import time
+    
+    # Simulate API network/inference latency
+    time.sleep(1.0)
+    
+    content = image_path.read_bytes()
+    hash_val = int(hashlib.md5(content).hexdigest(), 16)
     return "Yes" if hash_val % 3 == 0 else "No"
