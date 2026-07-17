@@ -14,6 +14,7 @@ DATASET_PATH = PROJECT_ROOT / os.environ.get("DATASET_PATH", "dataset")
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 MODEL = os.environ.get("MODEL", "gpt-4.1-nano")
 TRACKING_URI = os.environ.get("TRACKING_URI", "http://127.0.0.1:5000")
 EXPERIMENT_NAME = os.environ.get("EXPERIMENT_NAME", "siren-sky-benchmark")
@@ -32,3 +33,13 @@ def require_openai_api_key():
         )
 
     return OPENAI_API_KEY
+
+
+def require_gemini_api_key():
+    if not GEMINI_API_KEY:
+        raise RuntimeError(
+            "GEMINI_API_KEY is not set. Create backend/.env with GEMINI_API_KEY=your_api_key_here "
+            "or set the environment variable before running."
+        )
+
+    return GEMINI_API_KEY

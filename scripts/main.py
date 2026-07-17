@@ -1,11 +1,12 @@
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_path
-from backend.classifiers import create_openai_client
+from backend.classifiers import create_openai_client, create_gemini_client
 from backend.config import (
     DATASET_PATH,
     EXPERIMENT_NAME,
     IMAGE_EXTENSIONS,
     TRACKING_URI,
     require_openai_api_key,
+    require_gemini_api_key,
 )
 from experiments.mlflow_tracking import configure_mlflow
 
@@ -43,7 +44,10 @@ def main():
     configure_mlflow(TRACKING_URI, EXPERIMENT_NAME)
     client = None
     if not DEFAULT_SETTINGS.use_simulated_predictions:
-        client = create_openai_client(require_openai_api_key())
+        if DEFAULT_SETTINGS.model.startswith("gemini-"):
+            client = create_gemini_client(require_gemini_api_key())
+        else:
+            client = create_openai_client(require_openai_api_key())
     results = []
 
     for category, image_path in iter_images(DATASET_PATH):

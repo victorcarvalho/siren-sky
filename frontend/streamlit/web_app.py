@@ -15,8 +15,8 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
-from backend.classifiers import create_openai_client
-from backend.config import USE_SIMULATED_PREDICTIONS, require_openai_api_key
+from backend.classifiers import create_openai_client, create_gemini_client
+from backend.config import USE_SIMULATED_PREDICTIONS, require_openai_api_key, require_gemini_api_key, MODEL
 
 from utils import (
     build_image_record,
@@ -39,6 +39,8 @@ SUPPORTED_UPLOAD_TYPES = ["jpg", "jpeg", "png", "webp"]
 def get_client():
     if USE_SIMULATED_PREDICTIONS:
         return None
+    if MODEL.startswith("gemini-"):
+        return create_gemini_client(require_gemini_api_key())
     return create_openai_client(require_openai_api_key())
 
 
@@ -74,7 +76,6 @@ def show_empty_state():
     st.markdown(
         """
         <div style="text-align: center; padding: 40px 20px; background-color: #ffffff; border-radius: 8px; border: 1px dashed #0066cc; margin-top: 20px;">
-            <span style="font-size: 4rem;">🛸</span>
             <h3 style="color: #003f7f; margin-top: 15px; margin-bottom: 5px;">Nenhuma imagem carregada</h3>
             <p style="color: #666666; max-width: 500px; margin: 0 auto 20px auto; font-size: 0.95rem;">
                 Envie as fotos capturadas pelo drone para detectar automaticamente focos de lixo e gerar alertas de geolocalização.

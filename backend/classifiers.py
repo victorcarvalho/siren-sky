@@ -3,6 +3,9 @@ import mimetypes
 
 import openai
 from openai import OpenAI
+from google import genai
+from google.genai import types
+from google.genai.errors import APIError
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 
@@ -50,6 +53,10 @@ def classify_image_openai(client, image_path, model, prompt, detail="auto"):
     )
     return response.output_text.strip()
 
+def create_gemini_client(api_key):
+    return genai.Client(api_key=api_key)
+
+
 def classify_image_local(image_path, model, prompt, detail="auto"):
     pass
 
@@ -64,3 +71,27 @@ def classify_image_simulated(image_path):
     content = image_path.read_bytes()
     hash_val = int(hashlib.md5(content).hexdigest(), 16)
     return "Yes" if hash_val % 3 == 0 else "No"
+
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=2, max=10),
+    retry=retry_if_exception_type((
+        APIError,
+    )),
+    reraise=True
+)
+def classify_image_gemini(client, image_path, model, prompt):
+    mime_type = get_image_mime_type(image_path)
+    image_bytes = image_path.read_bytes()
+    
+    image_part = types.Part.from_bytes(
+        data=image_bytes,
+        mime_type=mime_type
+    )
+    
+    response = client.models.generate_content(
+        model=model,
+        contents=[image_part, prompt]
+    )
+    return response.text.strip()

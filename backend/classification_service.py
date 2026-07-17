@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image, UnidentifiedImageError
 
-from backend.classifiers import classify_image_openai, classify_image_simulated
+from backend.classifiers import classify_image_openai, classify_image_simulated, classify_image_gemini
 from backend.config import CLASSIFICATION_PROMPT, IMAGE_DETAIL, MODEL, USE_SIMULATED_PREDICTIONS
 
 
@@ -47,7 +47,16 @@ def classify_image_path(image_path, client=None, settings=DEFAULT_SETTINGS):
         return classify_image_simulated(image_path)
 
     if client is None:
-        raise RuntimeError("OpenAI client is not initialized. Check OPENAI_API_KEY.")
+        provider = "Gemini" if settings.model.startswith("gemini-") else "OpenAI"
+        raise RuntimeError(f"{provider} client is not initialized. Check API keys.")
+
+    if settings.model.startswith("gemini-"):
+        return classify_image_gemini(
+            client=client,
+            image_path=image_path,
+            model=settings.model,
+            prompt=settings.prompt,
+        )
 
     return classify_image_openai(
         client=client,
