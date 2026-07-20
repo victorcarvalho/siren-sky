@@ -159,65 +159,23 @@ def test_classify_image_openai_does_not_retry_non_retryable_errors(image_file, m
     assert call_count == 1  # Should only be called once, no retries
 
 
-def test_classify_image_gemini_uses_client_and_strips_output(image_file):
-    calls = {}
+def test_classify_image_local_is_deterministic(image_file):
+    image_path = image_file("sample.jpg")
 
-    class FakeResponse:
-        text = "  Yes  "
-
-    class FakeModels:
-        def generate_content(self, **kwargs):
-            calls["kwargs"] = kwargs
-            return FakeResponse()
-
-    class FakeClient:
-        models = FakeModels()
-
-    result = classifiers.classify_image_gemini(
-        client=FakeClient(),
-        image_path=image_file("sample.jpg"),
-        model="gemini-2.0-flash",
+    first = classifiers.classify_image_local(
+        image_path=image_path,
+        model="localmodel",
+        prompt="Is there garbage here?",
+    )
+    second = classifiers.classify_image_local(
+        image_path=image_path,
+        model="localmodel",
         prompt="Is there garbage here?",
     )
 
-    assert result == "Yes"
-    assert calls["kwargs"]["model"] == "gemini-2.0-flash"
-    contents = calls["kwargs"]["contents"]
-    assert contents[1] == "Is there garbage here?"
-    assert contents[0].inline_data.mime_type == "image/jpeg"
+    assert first == second
+    assert first in {"Yes", "No"}
 
-
-def test_classify_image_gemini_retries_on_transient_error(image_file, monkeypatch):
-    import pytest
-    from google.genai.errors import APIError
-    from tenacity import wait_none
-    monkeypatch.setattr(classifiers.classify_image_gemini.retry, "wait", wait_none())
-
-    call_count = 0
-
-    class FakeModelsWithFailures:
-        def generate_content(self, **kwargs):
-            nonlocal call_count
-            call_count += 1
-            if call_count < 3:
-                raise APIError(503, {"message": "Service Unavailable"})
-
-            class FakeResponse:
-                text = "Yes"
-            return FakeResponse()
-
-    class FakeClient:
-        models = FakeModelsWithFailures()
-
-    result = classifiers.classify_image_gemini(
-        client=FakeClient(),
-        image_path=image_file("sample.jpg"),
-        model="gemini-2.0-flash",
-        prompt="Is there garbage here?",
-    )
-
-    assert result == "Yes"
-    assert call_count == 3  # Failed twice, succeeded on the third attempt
 
 
 

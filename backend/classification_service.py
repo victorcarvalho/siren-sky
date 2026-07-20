@@ -4,8 +4,8 @@ from pathlib import Path
 
 from PIL import Image, UnidentifiedImageError
 
-from backend.classifiers import classify_image_openai, classify_image_simulated, classify_image_gemini
-from backend.config import CLASSIFICATION_PROMPT, IMAGE_DETAIL, MODEL, USE_SIMULATED_PREDICTIONS
+from backend.classifiers import classify_image_openai, classify_image_simulated, classify_image_local
+from backend.config import CLASSIFICATION_PROMPT, IMAGE_DETAIL, MODEL
 
 
 @dataclass(frozen=True)
@@ -13,14 +13,12 @@ class ClassificationSettings:
     model: str
     prompt: str
     detail: str
-    use_simulated_predictions: bool
 
 
 DEFAULT_SETTINGS = ClassificationSettings(
     model=MODEL,
     prompt=CLASSIFICATION_PROMPT,
     detail=IMAGE_DETAIL,
-    use_simulated_predictions=USE_SIMULATED_PREDICTIONS,
 )
 
 
@@ -43,20 +41,19 @@ def write_temp_image(filename, image_bytes):
 
 
 def classify_image_path(image_path, client=None, settings=DEFAULT_SETTINGS):
-    if settings.use_simulated_predictions:
+    if settings.model == "debug":
         return classify_image_simulated(image_path)
 
-    if client is None:
-        provider = "Gemini" if settings.model.startswith("gemini-") else "OpenAI"
-        raise RuntimeError(f"{provider} client is not initialized. Check API keys.")
-
-    if settings.model.startswith("gemini-"):
-        return classify_image_gemini(
-            client=client,
+    if settings.model == "localmodel":
+        return classify_image_local(
             image_path=image_path,
             model=settings.model,
             prompt=settings.prompt,
+            detail=settings.detail,
         )
+
+    if client is None:
+        raise RuntimeError("OpenAI client is not initialized. Check API keys.")
 
     return classify_image_openai(
         client=client,
@@ -65,6 +62,7 @@ def classify_image_path(image_path, client=None, settings=DEFAULT_SETTINGS):
         prompt=settings.prompt,
         detail=settings.detail,
     )
+
 
 
 def classify_image_bytes(image_bytes, filename, client=None, settings=DEFAULT_SETTINGS):

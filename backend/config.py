@@ -23,7 +23,6 @@ CLASSIFICATION_PROMPT = os.environ.get(
     "Is there garbage in this image? Answer with yes or no.",
 )
 IMAGE_DETAIL = os.environ.get("IMAGE_DETAIL", "auto")
-USE_SIMULATED_PREDICTIONS = os.environ.get("USE_SIMULATED_PREDICTIONS", "false").lower() == "true"
 
 def require_openai_api_key():
     if not OPENAI_API_KEY:
@@ -34,12 +33,3 @@ def require_openai_api_key():
 
     return OPENAI_API_KEY
 
-
-def require_gemini_api_key():
-    if not GEMINI_API_KEY:
-        raise RuntimeError(
-            "GEMINI_API_KEY is not set. Create backend/.env with GEMINI_API_KEY=your_api_key_here "
-            "or set the environment variable before running."
-        )
-
-    return GEMINI_API_KEY

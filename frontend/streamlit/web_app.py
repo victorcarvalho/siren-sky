@@ -15,8 +15,9 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
-from backend.classifiers import create_openai_client, create_gemini_client
-from backend.config import USE_SIMULATED_PREDICTIONS, require_openai_api_key, require_gemini_api_key, MODEL
+from backend.classifiers import create_openai_client
+from backend.config import require_openai_api_key, MODEL
+
 
 from utils import (
     build_image_record,
@@ -37,10 +38,8 @@ SUPPORTED_UPLOAD_TYPES = ["jpg", "jpeg", "png", "webp"]
 
 @st.cache_resource
 def get_client():
-    if USE_SIMULATED_PREDICTIONS:
+    if MODEL in ("debug", "localmodel"):
         return None
-    if MODEL.startswith("gemini-"):
-        return create_gemini_client(require_gemini_api_key())
     return create_openai_client(require_openai_api_key())
 
 
@@ -291,7 +290,7 @@ def classify_records(records):
 
 st.set_page_config(
     page_title="SirenSky", 
-    page_icon="🌊", 
+    page_icon="frontend/streamlit/favicon_io/favicon-32x32.png",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -340,7 +339,7 @@ with alerts_tab:
         show_empty_state()
     else:
         # Alert tab filter controls
-        st.markdown("### 🔍 Filtrar Alertas")
+        st.markdown("### 🔍 Filtrar alertas")
         alerts_only = get_alert_records(records)
         if not alerts_only:
             st.info("Sem alertas de lixo por enquanto. Envie e classifique as imagens no painel principal.")

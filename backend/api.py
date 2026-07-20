@@ -9,10 +9,9 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 import uvicorn
 
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
-from backend.classifiers import create_openai_client, create_gemini_client
-from backend.config import require_openai_api_key, require_gemini_api_key
+from backend.classifiers import create_openai_client
+from backend.config import require_openai_api_key
 from backend.schemas import Base64ClassificationRequest, ClassificationResponse, HealthResponse
-from google.genai.errors import APIError
 
 # Initialize client at startup if not using simulated predictions
 client = None
@@ -21,12 +20,9 @@ client = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
-    if not DEFAULT_SETTINGS.use_simulated_predictions:
+    if DEFAULT_SETTINGS.model not in ("debug", "localmodel"):
         try:
-            if DEFAULT_SETTINGS.model.startswith("gemini-"):
-                client = create_gemini_client(require_gemini_api_key())
-            else:
-                client = create_openai_client(require_openai_api_key())
+            client = create_openai_client(require_openai_api_key())
         except RuntimeError as e:
             print(f"Warning: {e}")
     yield
@@ -70,7 +66,7 @@ async def classify(file: UploadFile = File(...)):
             filename=file.filename,
             classification=classification,
             model=DEFAULT_SETTINGS.model,
-            simulated=DEFAULT_SETTINGS.use_simulated_predictions,
+            simulated=(DEFAULT_SETTINGS.model == "debug"),
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -84,8 +80,6 @@ async def classify(file: UploadFile = File(...)):
         raise HTTPException(status_code=429, detail=f"OpenAI API rate limit exceeded: {str(e)}")
     except openai.APIError as e:
         raise HTTPException(status_code=502, detail=f"OpenAI API error: {str(e)}")
-    except APIError as e:
-        raise HTTPException(status_code=502, detail=f"Gemini API error: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification failed: {str(e)}")
 
@@ -114,7 +108,7 @@ async def classify_base64(image_data: Base64ClassificationRequest):
             filename=image_data.filename,
             classification=classification,
             model=DEFAULT_SETTINGS.model,
-            simulated=DEFAULT_SETTINGS.use_simulated_predictions,
+            simulated=(DEFAULT_SETTINGS.model == "debug"),
         )
     except binascii.Error as e:
         raise HTTPException(status_code=400, detail=f"Invalid base64 image: {str(e)}")
@@ -130,8 +124,6 @@ async def classify_base64(image_data: Base64ClassificationRequest):
         raise HTTPException(status_code=429, detail=f"OpenAI API rate limit exceeded: {str(e)}")
     except openai.APIError as e:
         raise HTTPException(status_code=502, detail=f"OpenAI API error: {str(e)}")
-    except APIError as e:
-        raise HTTPException(status_code=502, detail=f"Gemini API error: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification failed: {str(e)}")
 
