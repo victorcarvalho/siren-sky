@@ -290,7 +290,7 @@ def classify_records(records):
 
 st.set_page_config(
     page_title="SirenSky", 
-    page_icon="frontend/streamlit/favicon_io/favicon-32x32.png",
+    page_icon="favicon_io/favicon-32x32.png",
     layout="wide",
     initial_sidebar_state="collapsed"
 )

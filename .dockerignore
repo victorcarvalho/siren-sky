@@ -1,0 +1,29 @@
+# Python build files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+
+# Local virtual environment
+venv/
+.venv/
+env/
+
+# Environment files with sensitive credentials
+.env
+.env.local
+
+# IDE and Project metadata
+.vscode/
+.idea/
+.git/
+.gitignore
+.DS_Store
+
+# Datasets and local experiments
+dataset/
+mlruns/

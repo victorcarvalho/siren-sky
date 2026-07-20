@@ -43,7 +43,7 @@ For more in-depth system details and planning, see:
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.13.14
 - OpenAI API key (for GPT-4 vision access)
 - MLflow server (optional, for experiment tracking)
 
