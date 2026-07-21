@@ -1,3 +1,4 @@
+from typing import Any, Optional
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,7 +23,7 @@ DEFAULT_SETTINGS = ClassificationSettings(
 )
 
 
-def validate_image_bytes(image_bytes):
+def validate_image_bytes(image_bytes: bytes) -> None:
     try:
         with tempfile.NamedTemporaryFile(delete=True) as temp_file:
             temp_file.write(image_bytes)
@@ -33,14 +34,18 @@ def validate_image_bytes(image_bytes):
         raise ValueError("File must be a valid image") from exc
 
 
-def write_temp_image(filename, image_bytes):
+def write_temp_image(filename: str, image_bytes: bytes) -> Path:
     suffix = Path(filename).suffix or ".jpg"
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
         temp_file.write(image_bytes)
         return Path(temp_file.name)
 
 
-def classify_image_path(image_path, client=None, settings=DEFAULT_SETTINGS):
+def classify_image_path(
+    image_path: Path,
+    client: Optional[Any] = None,
+    settings: ClassificationSettings = DEFAULT_SETTINGS,
+) -> str:
     if settings.model == "debug":
         return classify_image_simulated(image_path)
 
@@ -64,8 +69,12 @@ def classify_image_path(image_path, client=None, settings=DEFAULT_SETTINGS):
     )
 
 
-
-def classify_image_bytes(image_bytes, filename, client=None, settings=DEFAULT_SETTINGS):
+def classify_image_bytes(
+    image_bytes: bytes,
+    filename: str,
+    client: Optional[Any] = None,
+    settings: ClassificationSettings = DEFAULT_SETTINGS,
+) -> str:
     validate_image_bytes(image_bytes)
     image_path = write_temp_image(filename, image_bytes)
 
@@ -73,3 +82,4 @@ def classify_image_bytes(image_bytes, filename, client=None, settings=DEFAULT_SE
         return classify_image_path(image_path, client=client, settings=settings)
     finally:
         image_path.unlink(missing_ok=True)
+

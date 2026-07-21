@@ -1,3 +1,5 @@
+from typing import Any
+from pathlib import Path
 import base64
 import mimetypes
 
@@ -9,15 +11,15 @@ from google.genai.errors import APIError
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 
-def create_openai_client(api_key, timeout=15.0):
+def create_openai_client(api_key: str, timeout: float = 15.0) -> OpenAI:
     return OpenAI(api_key=api_key, timeout=timeout)
 
 
-def encode_image(image_path):
+def encode_image(image_path: Path) -> str:
     return base64.b64encode(image_path.read_bytes()).decode("utf-8")
 
 
-def get_image_mime_type(image_path):
+def get_image_mime_type(image_path: Path) -> str:
     mime_type, _ = mimetypes.guess_type(image_path)
     return mime_type or "image/jpeg"
 
@@ -32,7 +34,13 @@ def get_image_mime_type(image_path):
     )),
     reraise=True
 )
-def classify_image_openai(client, image_path, model, prompt, detail="auto"):
+def classify_image_openai(
+    client: Any,
+    image_path: Path,
+    model: str,
+    prompt: str,
+    detail: str = "auto",
+) -> str:
     base64_image = encode_image(image_path)
     mime_type = get_image_mime_type(image_path)
     response = client.responses.create(
@@ -53,11 +61,17 @@ def classify_image_openai(client, image_path, model, prompt, detail="auto"):
     )
     return response.output_text.strip()
 
-def create_gemini_client(api_key):
+
+def create_gemini_client(api_key: str) -> Any:
     return genai.Client(api_key=api_key)
 
 
-def classify_image_local(image_path, model, prompt, detail="auto"):
+def classify_image_local(
+    image_path: Path,
+    model: str,
+    prompt: str,
+    detail: str = "auto",
+) -> str:
     """
     Local image classifier. Since this runs offline, it uses a lightweight
     PIL-based heuristic/rules to classify the image.
@@ -73,7 +87,7 @@ def classify_image_local(image_path, model, prompt, detail="auto"):
         raise RuntimeError(f"Local classifier failed to read/process image: {e}")
 
 
-def classify_image_simulated(image_path):
+def classify_image_simulated(image_path: Path) -> str:
     """Simulate garbage classification based on image content hash for reproducibility with latency delay."""
     import hashlib
     import time
@@ -94,7 +108,7 @@ def classify_image_simulated(image_path):
     )),
     reraise=True
 )
-def classify_image_gemini(client, image_path, model, prompt):
+def classify_image_gemini(client: Any, image_path: Path, model: str, prompt: str) -> str:
     mime_type = get_image_mime_type(image_path)
     image_bytes = image_path.read_bytes()
     
@@ -108,3 +122,4 @@ def classify_image_gemini(client, image_path, model, prompt):
         contents=[image_part, prompt]
     )
     return response.text.strip()
+

@@ -24,7 +24,7 @@ CLASSIFICATION_PROMPT = os.environ.get(
 )
 IMAGE_DETAIL = os.environ.get("IMAGE_DETAIL", "auto")
 
-def require_openai_api_key():
+def require_openai_api_key() -> str:
     if not OPENAI_API_KEY:
         raise RuntimeError(
             "OPENAI_API_KEY is not set. Create backend/.env with OPENAI_API_KEY=your_api_key_here "
