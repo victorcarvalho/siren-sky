@@ -3,60 +3,72 @@ import './App.css'
 import { ImagesDisplay } from './pages/ImagesDisplay';
 
 function App() {
-  // const [image, setImage] = React.useState(null);
   const [imageInfo, setImageInfo] = React.useState([]);
-  // const [imagePreview, setImagePreview] = React.useState(false);
+  const inputRef = React.useRef();
+
+  // function fakeApi() {
+  //   return new Promise((resolve) => {
+  //     setTimeout(() => {
+  //       resolve(Math.random() < 0.5 ? 0 : 1);
+  //     }, 1000); // espera 1 segundo
+  //   });
+  // }
+
+  function handleImages(e) {
+    const files = Array.from(e.target.files);
+    if (!files) return;
+
+    files.forEach((file) => {
+      const img = new Image();
+      img.onload = () => {
+        setImageInfo((prev) => [
+          ...prev,
+          {
+            img: file,
+            name: file.name,
+            size: file.size,
+            width: img.width,
+            height: img.height,
+            id: crypto.randomUUID()
+          }]);
+        URL.revokeObjectURL(img.src);
+      };
+      img.src = URL.createObjectURL(file);
+    })
+  }
 
   // async function sendImage() {
-  //   if (imageInfo != [{}]) {
-  //     alert("Selecione uma imagem primeiro!")
-  //     return
+  //   if (imageInfo.length === 0) {
+  //     alert("Selecione uma imagem primeiro!");
+  //     return;
   //   }
-  //   console.log("Requisação realizada...")
-  //   const formData = new FormData();
 
-  //   formData.append("teste", imageInfo.img); // O primeiro argumento é o campo enviado para a API
+  //   console.log("Enviando...");
 
-  //   const response = await fetch("https://sirensky.nocs.ifrn.br/verificar_lixo", {
-  //     method: "POST",
-  //     body: formData
-  //   });
+  //   const resultado = await fakeApi();
 
-  //   const data = await response.json(); // Só funciona se a API retornar um json
-
-  //   console.log(data);
+  //   if (resultado === 1) {
+  //     alert("É lixo!");
+  //   } else {
+  //     alert("Não é lixo!");
+  //   }
   // }
 
   return (
     <>
       <div className="sendImage">
+        <button onClick={() => inputRef.current.click()}>Escolher imagem</button>
         <input
+          multiple
+          ref={inputRef}
           type="file"
           accept="image/*"
-          onChange={(e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const img = new Image();
-            img.onload = () => {
-              setImageInfo((prev) => [
-                ...prev,
-                {
-                  img: file,
-                  name: file.name,
-                  size: file.size,
-                  width: img.width,
-                  height: img.height,
-                  id: crypto.randomUUID()
-                }]);
-            };
-
-            img.src = URL.createObjectURL(file)
-          }}
+          onChange={handleImages}
+          hidden
         />
         {/* <button type="button" onClick={sendImage}>Enviar</button> */}
       </div>
-      {imageInfo.length && (
+      {imageInfo.length > 0 && (
         <div>
           <ImagesDisplay imageInfo={imageInfo} />
         </div>
