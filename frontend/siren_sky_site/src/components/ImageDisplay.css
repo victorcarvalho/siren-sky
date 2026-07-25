@@ -1,29 +1,38 @@
 .pop-up {
-	background-color: rgba(0, 0, 0, .2);
+	background-color: rgba(0, 0, 0, .5);
 	width: 100%;
 	height: 100vh;
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
 	align-items: center;
+	justify-content: center;
+	gap: 1rem;
 	position: fixed;
 	top: 0;
 	left: 0;
 
 	img {
+		margin-left: 2.5rem;
 		width: 400px;
+	}
+
+	div {
+		display: flex;
+		width: 100%;
+		align-items: start;
+		justify-content: center;
 	}
 }
 
-.close {
-	button {
-		padding: 0;
-		border: none;
-		background-color: transparent;
-	}
+
+.closeIcon {
+	padding: 0;
+	border: none;
+	outline: none;
+	background-color: transparent;
 
 	svg {
-		height: 24px;
-		fill: black;
+		width: 2.5rem;
+		fill: white;
 	}
 }

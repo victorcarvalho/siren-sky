@@ -1,0 +1,8 @@
+.buttons-component {
+	padding: 1.4rem 1.4rem;
+	display: flex;
+	gap: 5rem;
+	background-color: rgb(0, 108, 208);
+	margin: 1rem 3rem 0;
+	border-radius: 1rem;
+}

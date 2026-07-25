@@ -1,10 +1,15 @@
 .header-sirensky {
 	background-color: rgb(0, 53, 102);
 	display: flex;
-	justify-content: space-around;
+	justify-content: center;
 	align-items: center;
 
 	h1 {
 		color: white;
+		font-size: 3.5rem;
+	}
+
+	img {
+		width: 100px;
 	}
 }
