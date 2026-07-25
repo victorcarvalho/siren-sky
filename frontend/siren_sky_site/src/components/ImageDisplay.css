@@ -14,3 +14,16 @@
 		width: 400px;
 	}
 }
+
+.close {
+	button {
+		padding: 0;
+		border: none;
+		background-color: transparent;
+	}
+
+	svg {
+		height: 24px;
+		fill: black;
+	}
+}

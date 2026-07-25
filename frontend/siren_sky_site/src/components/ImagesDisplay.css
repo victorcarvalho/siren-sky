@@ -1,0 +1,16 @@
+td {
+	border-left: 1px solid black;
+	padding: 0.5em 1em;
+}
+
+table {
+	min-width: 90%;
+	max-width: 90%;
+	width: 90%;
+	border-collapse: collapse;
+}
+
+td {
+	max-width: 200px;
+	word-break: break-all;
+}

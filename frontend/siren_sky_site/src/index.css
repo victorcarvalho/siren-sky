@@ -1,0 +1,27 @@
+* {
+	font-family: sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	font-size: 100%;
+}
+
+body {
+	background-color: rgb(0, 74, 143);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+button {
+	cursor: pointer;
+	padding: 1rem 0.7rem;
+	/* font-size: 1.0rem; */
+	outline: 3px solid white;
+	border: none;
+	color: white;
+	background-color: rgb(0, 53, 102);
+	border-radius: 0.3rem;
+}
