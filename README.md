@@ -126,7 +126,9 @@ Run the API server:
 uvicorn backend.api:app --reload
 ```
 
-Then open `http://localhost:8000/health` to verify the service is running.
+Then open `http://localhost:8000/health` to verify the service is running. You can view the interactive API documentation and test the endpoints directly by navigating to:
+* **Swagger UI**: `http://localhost:8000/docs`
+* **ReDoc**: `http://localhost:8000/redoc`
 
 **Features:**
 - Upload single images or batch process multiple files
