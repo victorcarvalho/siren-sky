@@ -15,8 +15,6 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
-from backend.classifiers import create_openai_client
-from backend.config import require_openai_api_key, MODEL
 
 
 from utils import (
@@ -34,13 +32,6 @@ from utils import (
 )
 
 SUPPORTED_UPLOAD_TYPES = ["jpg", "jpeg", "png", "webp"]
-
-
-@st.cache_resource
-def get_client():
-    if MODEL in ("debug", "localmodel"):
-        return None
-    return create_openai_client(require_openai_api_key())
 
 
 # Helper functions migrated to utils.py
@@ -63,9 +54,9 @@ def classify_record(record):
     return classify_image_bytes(
         image_bytes=record["image_bytes"],
         filename=record["file_name"],
-        client=get_client(),
         settings=DEFAULT_SETTINGS,
     )
+
 
 
 # Helper functions migrated to utils.py

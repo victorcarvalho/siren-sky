@@ -36,8 +36,8 @@ Deploy the Streamlit web dashboard as a **Web Service**:
    - **Build Command**: `pip install -r backend/requirements.txt`
    - **Start Command**: `streamlit run frontend/streamlit/web_app.py --server.port $PORT --server.address 0.0.0.0`
 3. Add the required environment variables in Render's **Environment** tab:
-   - `USE_SIMULATED_PREDICTIONS`: `false` (or `true` if testing without API credentials)
-   - `OPENAI_API_KEY`: `your-api-key-here`
+   - `MODEL`: `gpt-4.1-mini` (or `debug` if testing without API credentials)
+   - `OPENAI_API_KEY`: `your-api-key-here` (not needed if `MODEL` is `debug`)
 
 ### Option B: FastAPI REST service
 If you want to deploy the FastAPI endpoints for external clients to request classifications:
@@ -47,7 +47,7 @@ If you want to deploy the FastAPI endpoints for external clients to request clas
    - **Build Command**: `pip install -r backend/requirements.txt`
    - **Start Command**: `uvicorn backend.api:app --host 0.0.0.0 --port $PORT`
 3. Add the required environment variables:
-   - `USE_SIMULATED_PREDICTIONS`: `false`
+   - `MODEL`: `gpt-4.1-mini`
    - `OPENAI_API_KEY`: `your-api-key-here`
 
 ---

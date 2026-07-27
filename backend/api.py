@@ -2,37 +2,18 @@
 
 import base64
 import binascii
-from contextlib import asynccontextmanager
 
 import openai
 from fastapi import FastAPI, File, UploadFile, HTTPException
 import uvicorn
 
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
-from backend.classifiers import create_openai_client
-from backend.config import require_openai_api_key
 from backend.schemas import Base64ClassificationRequest, ClassificationResponse, HealthResponse
-
-# Initialize client at startup if not using simulated predictions
-client = None
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    global client
-    if DEFAULT_SETTINGS.model not in ("debug", "localmodel"):
-        try:
-            client = create_openai_client(require_openai_api_key())
-        except RuntimeError as e:
-            print(f"Warning: {e}")
-    yield
-
 
 app = FastAPI(
     title="Siren Sky Classifier API",
     description="API for classifying images using vision models",
     version="1.0.1",
-    lifespan=lifespan,
 )
 
 
@@ -58,7 +39,6 @@ async def classify(file: UploadFile = File(...)):
         classification = classify_image_bytes(
             image_bytes=contents,
             filename=file.filename,
-            client=client,
             settings=DEFAULT_SETTINGS,
         )
 
@@ -100,7 +80,6 @@ async def classify_base64(image_data: Base64ClassificationRequest):
         classification = classify_image_bytes(
             image_bytes=image_bytes,
             filename=image_data.filename,
-            client=client,
             settings=DEFAULT_SETTINGS,
         )
 

@@ -1,4 +1,6 @@
-from typing import Any
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Any, Dict, Optional
 from pathlib import Path
 import base64
 import mimetypes
@@ -9,6 +11,22 @@ from google import genai
 from google.genai import types
 from google.genai.errors import APIError
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+
+from backend.config import CLASSIFICATION_PROMPT, IMAGE_DETAIL, MODEL, require_openai_api_key
+
+
+@dataclass(frozen=True)
+class ClassificationSettings:
+    model: str
+    prompt: str
+    detail: str
+
+
+DEFAULT_SETTINGS = ClassificationSettings(
+    model=MODEL,
+    prompt=CLASSIFICATION_PROMPT,
+    detail=IMAGE_DETAIL,
+)
 
 
 def create_openai_client(api_key: str, timeout: float = 15.0) -> OpenAI:
@@ -123,3 +141,57 @@ def classify_image_gemini(client: Any, image_path: Path, model: str, prompt: str
     )
     return response.text.strip()
 
+
+class BaseClassifier(ABC):
+    @abstractmethod
+    def classify(self, image_path: Path, settings: ClassificationSettings) -> str:
+        pass
+
+
+class OpenAIClassifier(BaseClassifier):
+    def __init__(self) -> None:
+        self._client: Optional[Any] = None
+
+    def _get_client(self) -> Any:
+        if self._client is None:
+            self._client = create_openai_client(require_openai_api_key())
+        return self._client
+
+    def classify(self, image_path: Path, settings: ClassificationSettings) -> str:
+        client = self._get_client()
+        return classify_image_openai(
+            client=client,
+            image_path=image_path,
+            model=settings.model,
+            prompt=settings.prompt,
+            detail=settings.detail,
+        )
+
+
+
+class LocalClassifier(BaseClassifier):
+    def classify(self, image_path: Path, settings: ClassificationSettings) -> str:
+        return classify_image_local(
+            image_path=image_path,
+            model=settings.model,
+            prompt=settings.prompt,
+            detail=settings.detail,
+        )
+
+
+class DebugClassifier(BaseClassifier):
+    def classify(self, image_path: Path, settings: ClassificationSettings) -> str:
+        return classify_image_simulated(image_path)
+
+
+# Registry for exact offline models
+CLASSIFIERS: Dict[str, BaseClassifier] = {
+    "debug": DebugClassifier(),
+    "localmodel": LocalClassifier(),
+}
+
+
+def get_classifier(model_name: str) -> BaseClassifier:
+    if model_name in CLASSIFIERS:
+        return CLASSIFIERS[model_name]
+    return OpenAIClassifier()

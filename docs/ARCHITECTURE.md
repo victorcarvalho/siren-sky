@@ -43,6 +43,6 @@ graph TD
 2. **Metadata extraction**: Geolocation (lat/lon) and image properties are parsed on the client side using Pillow.
 3. **Classification**:
    - The UI makes calls to the FastAPI server or the local orchestrator (`classification_service.py`).
-   - If `USE_SIMULATED_PREDICTIONS` is active, it runs a deterministic hash function locally.
+   - If the model is configured as `debug`, it runs a deterministic hash function locally to simulate predictions.
    - Otherwise, it queries OpenAI's vision APIs using retry-resilient hooks (via `tenacity`).
 4. **Alert generation**: Alerts are generated based on whether garbage was detected and whether GPS coordinates are present in the image EXIF metadata.

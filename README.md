@@ -81,8 +81,7 @@ All configuration is managed through environment variables in the `backend/.env`
 | `OPENAI_API_KEY` | Your OpenAI API key for authentication | `sk-...` |
 | `CLASSIFICATION_PROMPT` | The prompt template for image classification | `Is there garbage in this image? Answer with yes or no.` |
 | `IMAGE_DETAIL` | Image detail level for API calls | `auto`, `low`, or `high` |
-| `MODEL` | OpenAI model to use for classification | `gpt-4-vision`, `gpt-4.1-nano` |
-| `USE_SIMULATED_PREDICTIONS` | Use simulated predictions instead of API calls | `true` or `false` |
+| `MODEL` | Model to use (`gpt-4.1-mini` for live API, `debug` for simulation, `localmodel` for local rules) | `gpt-4.1-mini`, `debug`, `localmodel` |
 | `TRACKING_URI` | MLflow tracking server URI | `http://127.0.0.1:5000` |
 
 ## Usage
@@ -134,7 +133,6 @@ Then open `http://localhost:8000/health` to verify the service is running.
 - Real-time classification results
 - View image metadata (dimensions, format, size)
 - See geolocation on interactive map
-- Toggle between simulated and live API predictions
 
 ## Running tests
 
@@ -156,7 +154,7 @@ Then navigate to `http://localhost:5000` to view experiment metrics and results.
 
 ## Testing without API keys
 
-Set `USE_SIMULATED_PREDICTIONS=true` in your `backend/.env` file to test the application without making actual OpenAI API calls. This is useful for development and testing.
+Set `MODEL=debug` in your `backend/.env` file to test the application without making actual OpenAI API calls (using simulated predictions based on image content hashing). Alternatively, you can set `MODEL=localmodel` to run a local, rules-based Pillow classification model offline.
 
 ## Environment setup
 
