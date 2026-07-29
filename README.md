@@ -28,7 +28,19 @@ A Python-based image classification system that uses OpenAI's GPT-4 vision capab
 │   └── mlflow_tracking.py  # MLflow experiment tracking setup
 ├── frontend/
 │   └── streamlit/
-│       └── web_app.py      # Streamlit web application for interactive classification
+│       ├── web_app.py      # Streamlit web application for interactive classification
+│    └── api_fake/           
+│        ├── app.py         # Test API
+│    └── siren_sky_site/    # Web application using React.js
+│        ├── public/
+             └── ...        # Public files to React
+│        ├── src/
+             └── ...        # Source code for the App
+│        ├── eslint.config.js
+│        ├── index.html
+│        ├── package-lock.json
+│        ├── package.json
+│        ├── vite.config.js        
 ├── scripts/
 │   └── main.py             # Batch processing script for classifying entire datasets
 ├── tests/                  # Test suite
@@ -40,6 +52,7 @@ A Python-based image classification system that uses OpenAI's GPT-4 vision capab
 - Python 3.8+
 - OpenAI API key (for GPT-4 vision access)
 - MLflow server (optional, for experiment tracking)
+- NodeJS (for React.js)
 
 ## Installation
 
@@ -112,6 +125,40 @@ streamlit run frontend/streamlit/web_app.py
 ```
 
 Then open your browser to `http://localhost:8501`
+
+### Web Application
+
+With the Node.js installed, go to the React web application folder using:
+
+```
+cd frontend/siren_sky_site
+```
+
+Now, install the npm packages using
+
+```
+npm install
+```
+
+Once the packages have been installed, run the following command to start the website:
+
+```
+npm run dev
+```
+
+Finally, open your browser and go to `http://localhost:5173`
+
+To test the API simulation, open another terminal, activate the virtual environment `venv`, and navigate to the Fake API folder:
+
+```
+cd frontend/api_fake
+```
+
+Then run it:
+
+```
+python app.py
+```
 
 ### FastAPI Service
 

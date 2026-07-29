@@ -10,6 +10,7 @@ from backend.classification_service import DEFAULT_SETTINGS, classify_image_byte
 from backend.classifiers import create_openai_client
 from backend.config import require_openai_api_key
 from backend.schemas import Base64ClassificationRequest, ClassificationResponse, HealthResponse
+# from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Siren Sky Classifier API",
@@ -19,6 +20,15 @@ app = FastAPI(
 
 # Initialize client at startup if not using simulated predictions
 client = None
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["http://localhost:5173"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+# Isso faz o FrontEnd e o Backend poderem se conectar, já que eles rodam em portas diferentes.
 
 
 @app.on_event("startup")
