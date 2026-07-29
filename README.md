@@ -33,9 +33,9 @@ A Python-based image classification system that uses OpenAI's GPT-4 vision capab
 │        ├── app.py         # Test API
 │    └── siren_sky_site/    # Web application using React.js
 │        ├── public/
-             └── ...        # Public files to React
+│            └── ...        # Public files to React
 │        ├── src/
-             └── ...        # Source code for the App
+│            └── ...        # Source code for the App
 │        ├── eslint.config.js
 │        ├── index.html
 │        ├── package-lock.json
