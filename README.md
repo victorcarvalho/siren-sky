@@ -126,7 +126,7 @@ streamlit run frontend/streamlit/web_app.py
 
 Then open your browser to `http://localhost:8501`
 
-### Web Application
+### Web Application with React
 
 With the Node.js installed, go to the React web application folder using:
 
