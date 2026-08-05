@@ -35,9 +35,7 @@ def test_main_processes_each_image(monkeypatch, tmp_path):
 
     monkeypatch.setattr(main, "DATASET_PATH", dataset_root)
     monkeypatch.setattr(main, "configure_mlflow", lambda *args, **kwargs: None)
-    monkeypatch.setattr(main, "create_openai_client", lambda api_key: object())
-    monkeypatch.setattr(main, "require_openai_api_key", lambda: "sk-test")
-    monkeypatch.setattr(main, "classify_image_path", lambda **kwargs: calls["classified"].append(kwargs["image_path"]) or "Yes")
+    monkeypatch.setattr(main, "classify_image_path", lambda image_path, settings=None: calls["classified"].append(image_path) or "Yes")
     monkeypatch.setattr(main, "print_summary", lambda results: calls.setdefault("summary", results))
 
     main.main()

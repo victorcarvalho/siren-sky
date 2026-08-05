@@ -1,11 +1,9 @@
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_path
-from backend.classifiers import create_openai_client
 from backend.config import (
     DATASET_PATH,
     EXPERIMENT_NAME,
     IMAGE_EXTENSIONS,
     TRACKING_URI,
-    require_openai_api_key,
 )
 from experiments.mlflow_tracking import configure_mlflow
 
@@ -41,9 +39,6 @@ def print_summary(results):
 
 def main():
     configure_mlflow(TRACKING_URI, EXPERIMENT_NAME)
-    client = None
-    if not DEFAULT_SETTINGS.use_simulated_predictions:
-        client = create_openai_client(require_openai_api_key())
     results = []
 
     for category, image_path in iter_images(DATASET_PATH):
@@ -52,7 +47,6 @@ def main():
         try:
             classification = classify_image_path(
                 image_path=image_path,
-                client=client,
                 settings=DEFAULT_SETTINGS,
             )
             print(f"  -> {classification}")

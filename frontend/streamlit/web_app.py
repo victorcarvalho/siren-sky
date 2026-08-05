@@ -9,66 +9,32 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
-from backend.classifiers import create_openai_client
-from backend.config import USE_SIMULATED_PREDICTIONS, require_openai_api_key
-from backend.image_metadata import extract_image_attributes
+# Also add the script's directory to sys.path for importing local modules like utils.py
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
 
+from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
+
+
+from utils import (
+    build_image_record,
+    format_coordinate,
+    get_alert_records,
+    get_display_classification,
+    get_marker_color,
+    get_results_dataframe,
+    get_upload_signature,
+    is_alert_record,
+    is_garbage,
+    update_alert_status,
+    get_status_badge_html,
+)
 
 SUPPORTED_UPLOAD_TYPES = ["jpg", "jpeg", "png", "webp"]
-VISIBLE_COLUMNS = [
-    "file_name",
-    "format",
-    "size_kb",
-    "width",
-    "height",
-    "latitude",
-    "longitude",
-    "classification",
-    "alert_status",
-]
 
 
-@st.cache_resource
-def get_client():
-    if USE_SIMULATED_PREDICTIONS:
-        return None
-    return create_openai_client(require_openai_api_key())
-
-
-def format_coordinate(value):
-    if value is None:
-        return None
-    return round(value, 6)
-
-
-def is_garbage(classification):
-    return (classification or "").strip().lower().startswith("yes")
-
-
-def build_image_record(uploaded_file, index):
-    image_bytes = uploaded_file.getvalue()
-    attributes = extract_image_attributes(image_bytes)
-
-    return {
-        "id": f"{index}-{uploaded_file.name}-{len(image_bytes)}",
-        "file_name": uploaded_file.name,
-        "format": attributes["format"],
-        "size_kb": round(len(image_bytes) / 1024, 1),
-        "width": attributes["width"],
-        "height": attributes["height"],
-        "latitude": format_coordinate(attributes["latitude"]),
-        "longitude": format_coordinate(attributes["longitude"]),
-        "classification": None,
-        "alert_status": "Pendente",
-        "review_status": "Não revisado",
-        "notes": "",
-        "image_bytes": image_bytes,
-    }
-
-
-def get_upload_signature(uploaded_files):
-    return tuple((file.name, len(file.getvalue())) for file in uploaded_files)
+# Helper functions migrated to utils.py
 
 
 def sync_uploaded_files(uploaded_files):
@@ -88,61 +54,34 @@ def classify_record(record):
     return classify_image_bytes(
         image_bytes=record["image_bytes"],
         filename=record["file_name"],
-        client=get_client(),
         settings=DEFAULT_SETTINGS,
     )
 
 
-def update_alert_status(record):
-    if record["classification"] is None:
-        record["alert_status"] = "Pendente"
-    elif record["classification"].startswith("Error:"):
-        record["alert_status"] = "Erro"
-    elif is_garbage(record["classification"]) and record["latitude"] and record["longitude"]:
-        record["alert_status"] = "Novo"
-    elif is_garbage(record["classification"]):
-        record["alert_status"] = "GPS ausente"
-    else:
-        record["alert_status"] = "Sem alerta"
+
+# Helper functions migrated to utils.py
 
 
-def get_results_dataframe(records):
-    return pd.DataFrame([{key: record[key] for key in VISIBLE_COLUMNS} for record in records])
-
-
-def get_alert_records(records):
-    return [
-        record
-        for record in records
-        if record["alert_status"] in {"Novo", "Revisado", "Resolvido", "GPS ausente"}
-    ]
-
-
-def is_alert_record(record):
-    return record["alert_status"] in {"Novo", "Revisado", "Resolvido", "GPS ausente"}
-
-
-def get_marker_color(record):
-    if record["alert_status"] == "Resolvido":
-        return [25, 135, 84, 190]
-    if record["review_status"] == "Revisado":
-        return [255, 193, 7, 190]
-    if record["alert_status"] == "Novo":
-        return [220, 53, 69, 210]
-    if record["alert_status"] == "GPS ausente":
-        return [108, 117, 125, 190]
-    return [13, 110, 253, 160]
-
-
-def get_display_classification(classification):
-    if classification is None or classification == "":
-        return "-"
-    if classification.startswith("Error:"):
-        return classification
-    if is_garbage(classification):
-        return "Com lixo"
-    else:
-        return "Sem lixo"
+def show_empty_state():
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 40px 20px; background-color: #ffffff; border-radius: 8px; border: 1px dashed #0066cc; margin-top: 20px;">
+            <h3 style="color: #003f7f; margin-top: 15px; margin-bottom: 5px;">Nenhuma imagem carregada</h3>
+            <p style="color: #666666; max-width: 500px; margin: 0 auto 20px auto; font-size: 0.95rem;">
+                Envie as fotos capturadas pelo drone para detectar automaticamente focos de lixo e gerar alertas de geolocalização.
+            </p>
+            <div style="font-size: 0.85rem; text-align: left; max-width: 400px; margin: 0 auto; color: #555555; background-color: #f8fbff; padding: 15px; border-radius: 6px;">
+                <strong>Como começar:</strong>
+                <ol style="margin-top: 5px; margin-bottom: 0; padding-left: 20px;">
+                    <li>Arraste e solte ou clique para enviar imagens no painel acima.</li>
+                    <li>Clique no botão <strong>"Classificar imagens"</strong>.</li>
+                    <li>Acesse a aba <strong>"Alertas"</strong> para visualizar o mapa interativo.</li>
+                </ol>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def show_summary(records):
@@ -182,27 +121,17 @@ def show_results_table(records):
 
     for record in records:
         columns = st.columns(widths)
-        is_alert = is_alert_record(record)
         
-        # Use markdown with red and bold styling for alert rows
-        if is_alert:
-            columns[0].markdown(f":red[**{record['file_name']}**]")
-            columns[1].markdown(f":red[**{record['size_kb']}**]")
-            columns[2].markdown(f":red[**{record['width']}**]")
-            columns[3].markdown(f":red[**{record['height']}**]")
-            columns[4].markdown(f":red[**{record['latitude']}**]")
-            columns[5].markdown(f":red[**{record['longitude']}**]")
-            columns[6].markdown(f":red[**{get_display_classification(record['classification'])}**]")
-            columns[7].markdown(f":red[**{record['alert_status']}**]")
-        else:
-            columns[0].write(record["file_name"])
-            columns[1].write(record["size_kb"])
-            columns[2].write(record["width"])
-            columns[3].write(record["height"])
-            columns[4].write(record["latitude"])
-            columns[5].write(record["longitude"])
-            columns[6].write(get_display_classification(record["classification"]))
-            columns[7].write(record["alert_status"])
+        columns[0].write(record["file_name"])
+        columns[1].write(record["size_kb"])
+        columns[2].write(record["width"])
+        columns[3].write(record["height"])
+        columns[4].write(record["latitude"] if record["latitude"] is not None else "-")
+        columns[5].write(record["longitude"] if record["longitude"] is not None else "-")
+        columns[6].write(get_display_classification(record["classification"]))
+        
+        # Display the custom colored status pill badge
+        columns[7].markdown(get_status_badge_html(record["alert_status"]), unsafe_allow_html=True)
 
         if columns[8].button("Visualizar", key=f"view-result-{record['id']}"):
             st.session_state["selected_image_id"] = record["id"]
@@ -250,13 +179,7 @@ def show_alert_map(records):
         st.info("Os alertas de lixo serão exibidos no mapa.")
         return
 
-    map_style_choice = st.radio(
-        "Mapa",
-        ["Claro", "Escuro"],
-        horizontal=True,
-        key="map_style_choice",
-    )
-    map_style = "light" if map_style_choice == "Claro" else "dark"
+    map_style = "light"
 
     map_rows = pd.DataFrame(
         [
@@ -320,10 +243,10 @@ def show_alert_list(records):
             columns = st.columns([1.2, 2, 1.2, 1.2])
             columns[0].image(record["image_bytes"], width="stretch")
             columns[1].markdown(f"**{record['file_name']}**")
+            columns[1].markdown(get_status_badge_html(record["alert_status"]), unsafe_allow_html=True)
             columns[1].write(f"Classificação: {get_display_classification(record['classification'])}")
-            columns[1].write(f"Localização: {record['latitude']}, {record['longitude']}")
-            columns[1].write(f"Notas: {record['notes'] or '-'}")
-            columns[2].metric("Alerta", record["alert_status"])
+            columns[1].write(f"Localização: {record['latitude'] or '-'}, {record['longitude'] or '-'}")
+            
             columns[2].metric("Revisão", record["review_status"])
 
             if columns[3].button("Revisar", key=f"review-{record['id']}"):
@@ -357,161 +280,17 @@ def classify_records(records):
 
 
 st.set_page_config(
-    page_title="Siren", 
-    page_icon="S", 
+    page_title="SirenSky", 
+    page_icon="favicon_io/favicon-32x32.png",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS styling matching the logo theme (dark blue, white, and light blue)
-st.markdown("""
-<style>
-    /* Primary color scheme from logo */
-    :root {
-        --primary-dark: #003f7f;
-        --primary-light: #0066cc;
-        --accent-light: #87ceeb;
-        --text-light: #ffffff;
-        --text-dark: #003f7f;
-        --border-color: #0066cc;
-    }
-    
-    /* Main container */
-    .main {
-        background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f7 100%);
-    }
-    
-    /* Header styling */
-    h1, h2, h3 {
-        color: #003f7f !important;
-        font-weight: 700;
-    }
-    
-    /* Title */
-    .stTitle {
-        color: #003f7f !important;
-        text-shadow: 0 2px 4px rgba(0, 63, 127, 0.1);
-    }
-    
-    /* Tabs styling */
-    .stTabs [data-baseweb="tab-list"] button {
-        color: #003f7f;
-        font-weight: 600;
-        background-color: transparent !important;
-    }
-    
-    .stTabs [data-baseweb="tab-list"] button:hover {
-        background-color: transparent !important;
-        color: #0066cc;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        color: #0066cc !important;
-        background-color: transparent !important;
-        border-bottom: 2px solid #0066cc !important;
-    }
-    
-    /* Buttons */
-    .stButton > button {
-        background: linear-gradient(135deg, #0066cc 0%, #003f7f 100%);
-        color: white;
-        font-weight: 600;
-        border: none;
-        border-radius: 6px;
-    }
-    
-    .stButton > button:hover {
-        background: linear-gradient(135deg, #0052a3 0%, #003366 100%);
-        box-shadow: 0 4px 8px rgba(0, 63, 127, 0.3);
-    }
-    
-    button[kind="primary"] {
-        background: linear-gradient(135deg, #0066cc 0%, #003f7f 100%) !important;
-    }
-    
-    /* Metrics styling */
-    .stMetric {
-        background-color: #ffffff;
-        padding: 16px;
-        border-radius: 8px;
-        border-left: 4px solid #0066cc;
-        box-shadow: 0 2px 4px rgba(0, 63, 127, 0.1);
-    }
-    
-    .stMetricLabel {
-        color: #003f7f;
-        font-weight: 600;
-    }
-    
-    .stMetricValue {
-        color: #0066cc;
-        font-weight: 700;
-    }
-    
-    /* Container borders */
-    .stContainer {
-        border-color: #0066cc !important;
-    }
-    
-    /* Info messages */
-    .stInfo {
-        background-color: #e8f0f7 !important;
-        border-left: 4px solid #0066cc !important;
-        color: #003f7f !important;
-    }
-    
-    /* Dataframe styling */
-    .stDataFrame {
-        border: 1px solid #0066cc !important;
-    }
-    
-    .stDataFrame th {
-        background-color: #003f7f !important;
-        color: white !important;
-        font-weight: 600;
-    }
-    
-    /* Links */
-    a {
-        color: #0066cc !important;
-    }
-    
-    a:hover {
-        color: #003f7f !important;
-    }
-    
-    /* Radio buttons */
-    .stRadio {
-        color: #003f7f;
-    }
-    
-    .stRadio > label {
-        font-weight: 500;
-        color: #003f7f;
-    }
-    
-    /* File uploader */
-    .stFileUploader section {
-        border: 2px dashed #0066cc;
-        border-radius: 8px;
-        background-color: #f8fbff;
-    }
-    
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #003f7f 0%, #0052a3 100%);
-    }
-    
-    [data-testid="stSidebar"] label {
-        color: white !important;
-    }
-    
-    [data-testid="stSidebar"] .stRadio {
-        color: white;
-    }
-    
-</style>
-""", unsafe_allow_html=True)
+css_path = Path(__file__).parent / "style.css"
+if css_path.exists():
+    with open(css_path, "r", encoding="utf-8") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 st.title("🌊 SirenSky")
 
@@ -539,7 +318,7 @@ with upload_results_tab:
     
     records = st.session_state["records"]
     if not records:
-        st.info("Envie as imagens do \"drone\".")
+        show_empty_state()
     else:
         show_summary(records)
         show_results_table(records)
@@ -548,8 +327,27 @@ with upload_results_tab:
 with alerts_tab:
     records = st.session_state["records"]
     if not records:
-        st.info("Envie e classifique as imagens do \"drone\".")
+        show_empty_state()
     else:
-        show_summary(records)
-        show_alert_map(records)
-        show_alert_list(records)
+        # Alert tab filter controls
+        st.markdown("### 🔍 Filtrar alertas")
+        alerts_only = get_alert_records(records)
+        if not alerts_only:
+            st.info("Sem alertas de lixo por enquanto. Envie e classifique as imagens no painel principal.")
+        else:
+            available_statuses = sorted(list({r["alert_status"] for r in alerts_only}))
+            selected_statuses = st.multiselect(
+                "Filtrar por status do alerta:",
+                options=available_statuses,
+                default=available_statuses,
+                key="alert_status_filter"
+            )
+            
+            filtered_records = [r for r in records if r["alert_status"] in selected_statuses]
+            
+            if filtered_records:
+                show_summary(filtered_records)
+                show_alert_map(filtered_records)
+                show_alert_list(filtered_records)
+            else:
+                st.warning("Nenhum alerta corresponde aos filtros selecionados.")

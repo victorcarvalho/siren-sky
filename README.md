@@ -1,19 +1,20 @@
-# Siren Sky - Image Garbage Classification System
+# Siren Sky - Image garbage classification system
 
 A Python-based image classification system that uses OpenAI's GPT-4 vision capabilities to detect garbage in images. Features both batch processing and an interactive Streamlit web application for real-time classification with MLflow experiment tracking.
 
 ## Features
 
-- **Batch Image Processing**: Classify entire image datasets with automated analysis
-- **Interactive Web Interface**: Streamlit-based UI for uploading and classifying images in real-time
-- **Simulated Predictions**: Test the application without API calls using simulated predictions
-- **Experiment Tracking**: MLflow integration for tracking and comparing classification experiments
-- **Image Metadata Extraction**: Automatically extract and display image properties (dimensions, format, EXIF data)
-- **Geolocation Support**: Display image locations on an interactive map when available
+- **Batch image processing**: Classify entire image datasets with automated analysis
+- **Interactive web interface**: Streamlit-based UI for uploading and classifying images in real-time
+- **Simulated predictions**: Test the application without API calls using simulated predictions
+- **Experiment tracking**: MLflow integration for tracking and comparing classification experiments
+- **Image metadata extraction**: Automatically extract and display image properties (dimensions, format, EXIF data)
+- **Geolocation support**: Display image locations on an interactive map when available
 
-## Project Structure
+## Project structure
 
 ```
+├── docs/                   # System architecture and roadmap documentation
 ├── backend/
 │   ├── api.py              # FastAPI service for image classification
 │   ├── classification_service.py # Shared classification orchestration
@@ -47,9 +48,14 @@ A Python-based image classification system that uses OpenAI's GPT-4 vision capab
 └── README.md              # This file
 ```
 
+For more in-depth system details and planning, see:
+* [SirenSky architecture](docs/ARCHITECTURE.md)
+* [SirenSky project roadmap](docs/ROADMAP.md)
+* [SirenSky deployment guide](docs/deployment.md)
+
 ## Requirements
 
-- Python 3.8+
+- Python 3.13.14
 - OpenAI API key (for GPT-4 vision access)
 - MLflow server (optional, for experiment tracking)
 - NodeJS (for React.js)
@@ -88,13 +94,12 @@ All configuration is managed through environment variables in the `backend/.env`
 | `OPENAI_API_KEY` | Your OpenAI API key for authentication | `sk-...` |
 | `CLASSIFICATION_PROMPT` | The prompt template for image classification | `Is there garbage in this image? Answer with yes or no.` |
 | `IMAGE_DETAIL` | Image detail level for API calls | `auto`, `low`, or `high` |
-| `MODEL` | OpenAI model to use for classification | `gpt-4-vision`, `gpt-4.1-nano` |
-| `USE_SIMULATED_PREDICTIONS` | Use simulated predictions instead of API calls | `true` or `false` |
+| `MODEL` | Model to use (`gpt-4.1-mini` for live API, `debug` for simulation, `localmodel` for local rules) | `gpt-4.1-mini`, `debug`, `localmodel` |
 | `TRACKING_URI` | MLflow tracking server URI | `http://127.0.0.1:5000` |
 
 ## Usage
 
-### Batch Processing
+### Batch processing
 
 Process all images in a dataset directory and log results to MLflow:
 
@@ -116,7 +121,7 @@ dataset/
 
 Classification results will be printed to console and logged to MLflow.
 
-### Interactive Web Application
+### Interactive web application
 
 Run the Streamlit web interface:
 
@@ -168,16 +173,25 @@ Run the API server:
 uvicorn backend.api:app --reload
 ```
 
-Then open `http://localhost:8000/health` to verify the service is running.
+Then open `http://localhost:8000/health` to verify the service is running. You can view the interactive API documentation and test the endpoints directly by navigating to:
+* **Swagger UI**: `http://localhost:8000/docs`
+* **ReDoc**: `http://localhost:8000/redoc`
 
 **Features:**
 - Upload single images or batch process multiple files
 - Real-time classification results
 - View image metadata (dimensions, format, size)
 - See geolocation on interactive map
-- Toggle between simulated and live API predictions
 
-## MLflow Tracking
+## Running tests
+
+Run the unit and integration tests using pytest (make sure the project root is added to your Python path):
+
+```bash
+PYTHONPATH=. pytest
+```
+
+## MLflow tracking
 
 To view experiment tracking results, start the MLflow server:
 
@@ -187,13 +201,13 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db
 
 Then navigate to `http://localhost:5000` to view experiment metrics and results.
 
-## Testing Without API Keys
+## Testing without API keys
 
-Set `USE_SIMULATED_PREDICTIONS=true` in your `backend/.env` file to test the application without making actual OpenAI API calls. This is useful for development and testing.
+Set `MODEL=debug` in your `backend/.env` file to test the application without making actual OpenAI API calls (using simulated predictions based on image content hashing). Alternatively, you can set `MODEL=localmodel` to run a local, rules-based Pillow classification model offline.
 
-## Environment Setup
+## Environment setup
 
-### Using a Local MLflow Server
+### Using a local MLflow server
 
 To track experiments locally:
 

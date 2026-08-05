@@ -1,0 +1,190 @@
+/* Primary color scheme from logo */
+:root {
+    --primary-dark: #003f7f;
+    --primary-light: #0066cc;
+    --accent-light: #87ceeb;
+    --text-light: #ffffff;
+    --text-dark: #003f7f;
+    --border-color: #0066cc;
+}
+
+/* Main container */
+.main {
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f7 100%);
+}
+
+/* Header styling */
+h1, h2, h3 {
+    color: #003f7f !important;
+    font-weight: 700;
+}
+
+/* Title */
+.stTitle {
+    color: #003f7f !important;
+    text-shadow: 0 2px 4px rgba(0, 63, 127, 0.1);
+}
+
+/* Tabs styling */
+.stTabs [data-baseweb="tab-list"] button {
+    color: #003f7f;
+    font-weight: 600;
+    background-color: transparent !important;
+}
+
+.stTabs [data-baseweb="tab-list"] button:hover {
+    background-color: transparent !important;
+    color: #0066cc;
+}
+
+.stTabs [aria-selected="true"] {
+    color: #0066cc !important;
+    background-color: transparent !important;
+    border-bottom: 2px solid #0066cc !important;
+}
+
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(135deg, #0066cc 0%, #003f7f 100%);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+}
+
+.stButton > button:hover {
+    background: linear-gradient(135deg, #0052a3 0%, #003366 100%);
+    box-shadow: 0 4px 8px rgba(0, 63, 127, 0.3);
+}
+
+button[kind="primary"] {
+    background: linear-gradient(135deg, #0066cc 0%, #003f7f 100%) !important;
+}
+
+/* Metrics styling */
+.stMetric {
+    background-color: #ffffff;
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid #0066cc;
+    box-shadow: 0 2px 4px rgba(0, 63, 127, 0.1);
+}
+
+.stMetricLabel {
+    color: #003f7f;
+    font-weight: 600;
+}
+
+.stMetricValue {
+    color: #0066cc;
+    font-weight: 700;
+}
+
+/* Container borders */
+.stContainer {
+    border-color: #0066cc !important;
+}
+
+/* Info messages */
+.stInfo {
+    background-color: #e8f0f7 !important;
+    border-left: 4px solid #0066cc !important;
+    color: #003f7f !important;
+}
+
+/* Dataframe styling */
+.stDataFrame {
+    border: 1px solid #0066cc !important;
+}
+
+.stDataFrame th {
+    background-color: #003f7f !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+/* Links */
+a {
+    color: #0066cc !important;
+}
+
+a:hover {
+    color: #003f7f !important;
+}
+
+/* Radio buttons */
+.stRadio {
+    color: #003f7f;
+}
+
+.stRadio > label {
+    font-weight: 500;
+    color: #003f7f;
+}
+
+/* File uploader */
+.stFileUploader section {
+    border: 2px dashed #0066cc;
+    border-radius: 8px;
+    background-color: #f8fbff;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #003f7f 0%, #0052a3 100%);
+}
+
+[data-testid="stSidebar"] label {
+    color: white !important;
+}
+
+[data-testid="stSidebar"] .stRadio {
+    color: white;
+}
+
+/* Status Pill Badges */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.status-badge-pendente {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+}
+
+.status-badge-novo {
+    background-color: #fee2e2 !important;
+    color: #b91c1c !important;
+}
+
+.status-badge-revisado {
+    background-color: #fef3c7 !important;
+    color: #b45309 !important;
+}
+
+.status-badge-resolvido {
+    background-color: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+.status-badge-gps-ausente {
+    background-color: #f3f4f6 !important;
+    color: #4b5563 !important;
+}
+
+.status-badge-erro {
+    background-color: #fee2e2 !important;
+    color: #b91c1c !important;
+    border: 1px dashed #ef4444 !important;
+}
+
+.status-badge-sem-alerta {
+    background-color: #f3f4f6 !important;
+    color: #9ca3af !important;
+}

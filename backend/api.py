@@ -3,19 +3,18 @@
 import base64
 import binascii
 
+import openai
 from fastapi import FastAPI, File, UploadFile, HTTPException
 import uvicorn
 
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
-from backend.classifiers import create_openai_client
-from backend.config import require_openai_api_key
 from backend.schemas import Base64ClassificationRequest, ClassificationResponse, HealthResponse
 # from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Siren Sky Classifier API",
-    description="API for classifying images using OpenAI vision models",
-    version="1.0.0",
+    description="API for classifying images using vision models",
+    version="1.0.1",
 )
 
 # Initialize client at startup if not using simulated predictions
@@ -63,7 +62,6 @@ async def classify(file: UploadFile = File(...)):
         classification = classify_image_bytes(
             image_bytes=contents,
             filename=file.filename,
-            client=client,
             settings=DEFAULT_SETTINGS,
         )
 
@@ -71,12 +69,20 @@ async def classify(file: UploadFile = File(...)):
             filename=file.filename,
             classification=classification,
             model=DEFAULT_SETTINGS.model,
-            simulated=DEFAULT_SETTINGS.use_simulated_predictions,
+            simulated=(DEFAULT_SETTINGS.model == "debug"),
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
+    except openai.APITimeoutError as e:
+        raise HTTPException(status_code=504, detail=f"OpenAI API request timed out: {str(e)}")
+    except openai.APIConnectionError as e:
+        raise HTTPException(status_code=503, detail=f"OpenAI API connection failed: {str(e)}")
+    except openai.RateLimitError as e:
+        raise HTTPException(status_code=429, detail=f"OpenAI API rate limit exceeded: {str(e)}")
+    except openai.APIError as e:
+        raise HTTPException(status_code=502, detail=f"OpenAI API error: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification failed: {str(e)}")
 
@@ -97,7 +103,6 @@ async def classify_base64(image_data: Base64ClassificationRequest):
         classification = classify_image_bytes(
             image_bytes=image_bytes,
             filename=image_data.filename,
-            client=client,
             settings=DEFAULT_SETTINGS,
         )
 
@@ -105,7 +110,7 @@ async def classify_base64(image_data: Base64ClassificationRequest):
             filename=image_data.filename,
             classification=classification,
             model=DEFAULT_SETTINGS.model,
-            simulated=DEFAULT_SETTINGS.use_simulated_predictions,
+            simulated=(DEFAULT_SETTINGS.model == "debug"),
         )
     except binascii.Error as e:
         raise HTTPException(status_code=400, detail=f"Invalid base64 image: {str(e)}")
@@ -113,6 +118,14 @@ async def classify_base64(image_data: Base64ClassificationRequest):
         raise HTTPException(status_code=400, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
+    except openai.APITimeoutError as e:
+        raise HTTPException(status_code=504, detail=f"OpenAI API request timed out: {str(e)}")
+    except openai.APIConnectionError as e:
+        raise HTTPException(status_code=503, detail=f"OpenAI API connection failed: {str(e)}")
+    except openai.RateLimitError as e:
+        raise HTTPException(status_code=429, detail=f"OpenAI API rate limit exceeded: {str(e)}")
+    except openai.APIError as e:
+        raise HTTPException(status_code=502, detail=f"OpenAI API error: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification failed: {str(e)}")
 
