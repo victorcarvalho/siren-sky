@@ -1,0 +1,37 @@
+.imagesdisplay {
+	margin: 0 3rem;
+
+	table {
+		width: 100%;
+		table-layout: fixed;
+		border-collapse: collapse;
+	}
+
+	th {
+		font-size: 1.6rem;
+	}
+
+	th,
+	td {
+		text-align: center;
+		padding: 1rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+		word-wrap: break-word;
+	}
+
+	td:last-child {
+		border: none;
+	}
+
+	th {
+		font-weight: bold;
+	}
+
+	tbody tr:hover {
+		background-color: rgba(255, 255, 255, 0.08);
+	}
+
+	td {
+		font-size: 1.2rem;
+	}
+}
