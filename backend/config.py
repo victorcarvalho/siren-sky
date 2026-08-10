@@ -24,6 +24,8 @@ CLASSIFICATION_PROMPT = os.environ.get(
 )
 IMAGE_DETAIL = os.environ.get("IMAGE_DETAIL", "auto")
 ALLOWED_EMAILS = os.environ.get("ALLOWED_EMAILS", "")
+BYPASS_EMAIL_WHITELIST = os.environ.get("BYPASS_EMAIL_WHITELIST", "False").lower() in ("true", "1", "t", "yes", "y", "1")
+
 
 def require_openai_api_key() -> str:
     if not OPENAI_API_KEY:

@@ -138,3 +138,33 @@ def get_status_badge_html(status: Optional[str]) -> str:
 
     return f'<span class="status-badge {badge_class}">{status_str}</span>'
 
+
+def is_email_authorized(
+    email: Optional[str],
+    allowed_emails_raw: str,
+    bypass_whitelist: bool,
+) -> bool:
+    """
+    Checks if a user email is authorized based on a whitelist and bypass flag.
+    - If bypass_whitelist is True, anyone is authorized.
+    - If bypass_whitelist is False, the email must be present in the non-empty whitelist.
+    - If the whitelist is empty and bypass is False, NO ONE is authorized (Fail-Closed).
+    """
+    if bypass_whitelist:
+        return True
+    if not allowed_emails_raw:
+        return False
+    
+    allowed_list = [
+        e.strip().lower()
+        for e in allowed_emails_raw.split(",")
+        if e.strip()
+    ]
+    if not allowed_list:
+        return False
+    if not email:
+        return False
+    
+    return email.strip().lower() in allowed_list
+
+

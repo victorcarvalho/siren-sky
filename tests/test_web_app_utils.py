@@ -7,6 +7,7 @@ from frontend.streamlit.utils import (
     get_marker_color,
     get_display_classification,
     get_status_badge_html,
+    is_email_authorized,
 )
 
 
@@ -112,3 +113,27 @@ def test_get_status_badge_html():
     assert "status-badge-gps-ausente" in get_status_badge_html("GPS ausente")
     assert "status-badge-erro" in get_status_badge_html("Erro: API error")
     assert "status-badge-sem-alerta" in get_status_badge_html("Sem alerta")
+
+
+def test_is_email_authorized():
+    # 1. Whitelist bypass is True -> Everyone is authorized
+    assert is_email_authorized("test@example.com", "user@example.com", True) is True
+    assert is_email_authorized(None, "user@example.com", True) is True
+    assert is_email_authorized("", "", True) is True
+
+    # 2. Whitelist bypass is False, whitelist is empty -> No one is authorized (Fail-Closed)
+    assert is_email_authorized("test@example.com", "", False) is False
+    assert is_email_authorized("test@example.com", "   ", False) is False
+    assert is_email_authorized(None, "", False) is False
+
+    # 3. Whitelist has matching email -> Authorized
+    assert is_email_authorized("user@example.com", "user@example.com", False) is True
+    assert is_email_authorized("USER@EXAMPLE.COM", "user@example.com", False) is True
+    assert is_email_authorized("user@example.com", "USER@EXAMPLE.COM", False) is True
+    assert is_email_authorized("user@example.com", "other@example.com, user@example.com", False) is True
+
+    # 4. Whitelist doesn't have matching email -> Unauthorized
+    assert is_email_authorized("test@example.com", "user@example.com", False) is False
+    assert is_email_authorized("test@example.com", "other@example.com, another@example.com", False) is False
+    assert is_email_authorized(None, "user@example.com", False) is False
+

@@ -15,7 +15,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
-from backend.config import ALLOWED_EMAILS
+from backend.config import ALLOWED_EMAILS, BYPASS_EMAIL_WHITELIST
 
 
 from utils import (
@@ -30,6 +30,7 @@ from utils import (
     is_garbage,
     update_alert_status,
     get_status_badge_html,
+    is_email_authorized,
 )
 
 from ui_templates import (
@@ -287,8 +288,7 @@ if not st.user.is_logged_in:
     st.stop()
 
 # Email authorization check
-allowed_emails_list = [email.strip() for email in ALLOWED_EMAILS.split(",") if email.strip()] if ALLOWED_EMAILS else []
-if allowed_emails_list and st.user.email not in allowed_emails_list:
+if not is_email_authorized(st.user.email, ALLOWED_EMAILS, BYPASS_EMAIL_WHITELIST):
     render_access_denied_card(st.user.email)
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
