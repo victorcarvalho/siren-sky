@@ -15,6 +15,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from backend.classification_service import DEFAULT_SETTINGS, classify_image_bytes
+from backend.config import ALLOWED_EMAILS
 
 
 from utils import (
@@ -29,6 +30,13 @@ from utils import (
     is_garbage,
     update_alert_status,
     get_status_badge_html,
+)
+
+from ui_templates import (
+    show_empty_state,
+    render_login_card,
+    render_access_denied_card,
+    render_model_footer,
 )
 
 SUPPORTED_UPLOAD_TYPES = ["jpg", "jpeg", "png", "webp"]
@@ -55,32 +63,6 @@ def classify_record(record):
         image_bytes=record["image_bytes"],
         filename=record["file_name"],
         settings=DEFAULT_SETTINGS,
-    )
-
-
-
-# Helper functions migrated to utils.py
-
-
-def show_empty_state():
-    st.markdown(
-        """
-        <div style="text-align: center; padding: 40px 20px; background-color: #ffffff; border-radius: 8px; border: 1px dashed #0066cc; margin-top: 20px;">
-            <h3 style="color: #003f7f; margin-top: 15px; margin-bottom: 5px;">Nenhuma imagem carregada</h3>
-            <p style="color: #666666; max-width: 500px; margin: 0 auto 20px auto; font-size: 0.95rem;">
-                Envie as fotos capturadas pelo drone para detectar automaticamente focos de lixo e gerar alertas de geolocalização.
-            </p>
-            <div style="font-size: 0.85rem; text-align: left; max-width: 400px; margin: 0 auto; color: #555555; background-color: #f8fbff; padding: 15px; border-radius: 6px;">
-                <strong>Como começar:</strong>
-                <ol style="margin-top: 5px; margin-bottom: 0; padding-left: 20px;">
-                    <li>Arraste e solte ou clique para enviar imagens no painel acima.</li>
-                    <li>Clique no botão <strong>"Classificar imagens"</strong>.</li>
-                    <li>Acesse a aba <strong>"Alertas"</strong> para visualizar o mapa interativo.</li>
-                </ol>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
     )
 
 
@@ -283,7 +265,7 @@ st.set_page_config(
     page_title="SirenSky", 
     page_icon="favicon_io/favicon-32x32.png",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="auto"
 )
 
 # Custom CSS styling matching the logo theme (dark blue, white, and light blue)
@@ -292,7 +274,39 @@ if css_path.exists():
     with open(css_path, "r", encoding="utf-8") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-st.title("🌊 SirenSky")
+# Authentication check
+if not st.user.is_logged_in:
+    render_login_card()
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Fazer Login com Google", type="primary", use_container_width=True):
+            st.login()
+            
+    render_model_footer(DEFAULT_SETTINGS.model, margin_top="60px")
+    st.stop()
+
+# Email authorization check
+allowed_emails_list = [email.strip() for email in ALLOWED_EMAILS.split(",") if email.strip()] if ALLOWED_EMAILS else []
+if allowed_emails_list and st.user.email not in allowed_emails_list:
+    render_access_denied_card(st.user.email)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Sair / Entrar com outra conta", type="secondary", use_container_width=True):
+            st.logout()
+    st.stop()
+
+
+# User profile and logout in sidebar
+with st.sidebar:
+    st.markdown("### 👤 Conta")
+    user_name = st.user.name or "Usuário"
+    st.write(f"**Nome:** {user_name}")
+    st.write(f"**E-mail:** {st.user.email}")
+    if st.button("Sair / Logout", type="secondary", use_container_width=True):
+        st.logout()
+
+st.title("SirenSky")
 
 if "records" not in st.session_state:
     st.session_state["records"] = []
@@ -354,48 +368,5 @@ with alerts_tab:
 
 
 # Model configuration footer
-model_name = DEFAULT_SETTINGS.model
-if model_name == "localmodel":
-    model_display = "Modelo local (heurística de tons de cinza)"
-elif model_name == "debug":
-    model_display = "Modelo de debug (simulado)"
-else:
-    model_display = f"OpenAI API ({model_name})"
-
-st.markdown(
-    f"""
-    <div style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        margin-top: 40px;
-        padding: 12px 24px;
-        background: rgba(255, 255, 255, 0.75);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border-radius: 8px;
-        border: 1px solid rgba(0, 102, 204, 0.15);
-        box-shadow: 0 4px 12px rgba(0, 63, 127, 0.05);
-        font-size: 0.85rem;
-        color: #003f7f;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-    ">
-        <span>Modelo utilizado:</span>
-        <span style="
-            background: linear-gradient(135deg, #0066cc 0%, #003f7f 100%);
-            color: white;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 4px rgba(0, 63, 127, 0.15);
-        ">{model_display}</span>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+render_model_footer(DEFAULT_SETTINGS.model, margin_top="40px")
 

@@ -23,6 +23,7 @@ CLASSIFICATION_PROMPT = os.environ.get(
     "Is there garbage in this image? Answer with yes or no.",
 )
 IMAGE_DETAIL = os.environ.get("IMAGE_DETAIL", "auto")
+ALLOWED_EMAILS = os.environ.get("ALLOWED_EMAILS", "")
 
 def require_openai_api_key() -> str:
     if not OPENAI_API_KEY:

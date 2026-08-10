@@ -14,7 +14,9 @@
 }
 
 /* Header styling */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     color: #003f7f !important;
     font-weight: 700;
 }
@@ -44,7 +46,7 @@ h1, h2, h3 {
 }
 
 /* Buttons */
-.stButton > button {
+.stButton>button {
     background: linear-gradient(135deg, #0066cc 0%, #003f7f 100%);
     color: white;
     font-weight: 600;
@@ -52,7 +54,7 @@ h1, h2, h3 {
     border-radius: 6px;
 }
 
-.stButton > button:hover {
+.stButton>button:hover {
     background: linear-gradient(135deg, #0052a3 0%, #003366 100%);
     box-shadow: 0 4px 8px rgba(0, 63, 127, 0.3);
 }
@@ -117,7 +119,7 @@ a:hover {
     color: #003f7f;
 }
 
-.stRadio > label {
+.stRadio>label {
     font-weight: 500;
     color: #003f7f;
 }
@@ -131,16 +133,26 @@ a:hover {
 
 /* Sidebar */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #003f7f 0%, #0052a3 100%);
+    background: #f1f5f9 !important;
+    border-right: 1px solid rgba(0, 63, 127, 0.1);
 }
 
-[data-testid="stSidebar"] label {
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] .stRadio,
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] h4,
+[data-testid="stSidebar"] h5,
+[data-testid="stSidebar"] h6,
+[data-testid="stSidebar"] p {
+    color: #003f7f !important;
+}
+
+[data-testid="stSidebar"] button * {
     color: white !important;
 }
 
-[data-testid="stSidebar"] .stRadio {
-    color: white;
-}
 
 /* Status Pill Badges */
 .status-badge {

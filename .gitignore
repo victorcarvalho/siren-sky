@@ -6,3 +6,4 @@ mlartifacts/
 dataset/
 __pycache__/
 *.pyc
+frontend/streamlit/.streamlit/
