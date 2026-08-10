@@ -351,3 +351,51 @@ with alerts_tab:
                 show_alert_list(filtered_records)
             else:
                 st.warning("Nenhum alerta corresponde aos filtros selecionados.")
+
+
+# Model configuration footer
+model_name = DEFAULT_SETTINGS.model
+if model_name == "localmodel":
+    model_display = "Modelo local (heurística de tons de cinza)"
+elif model_name == "debug":
+    model_display = "Modelo de debug (simulado)"
+else:
+    model_display = f"OpenAI API ({model_name})"
+
+st.markdown(
+    f"""
+    <div style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 40px;
+        padding: 12px 24px;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 8px;
+        border: 1px solid rgba(0, 102, 204, 0.15);
+        box-shadow: 0 4px 12px rgba(0, 63, 127, 0.05);
+        font-size: 0.85rem;
+        color: #003f7f;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    ">
+        <span>Modelo utilizado:</span>
+        <span style="
+            background: linear-gradient(135deg, #0066cc 0%, #003f7f 100%);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0, 63, 127, 0.15);
+        ">{model_display}</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
