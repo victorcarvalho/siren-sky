@@ -1,4 +1,4 @@
-import { ImageDisplay } from './ImageDisplay'
+import { ImageDisplay } from '../ImageDisplay/ImageDisplay'
 import './ImagesDisplay.css'
 
 export function ImagesDisplay({ imageInfo, setImageInfo }) {
