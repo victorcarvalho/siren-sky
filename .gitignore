@@ -7,3 +7,4 @@ dataset/
 __pycache__/
 *.pyc
 node_modules
+images
