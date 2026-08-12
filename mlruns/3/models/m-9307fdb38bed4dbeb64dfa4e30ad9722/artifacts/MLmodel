@@ -1,0 +1,23 @@
+artifact_path: file:C:/Users/thifr/OneDrive/Documentos/GitHub/siren-sky/mlruns/3/models/m-9307fdb38bed4dbeb64dfa4e30ad9722/artifacts
+flavors:
+  python_function:
+    config:
+      device: null
+    data: data
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pytorch
+    pickle_module_name: mlflow.pytorch.pickle_module
+    python_version: 3.13.0
+  pytorch:
+    code: null
+    model_data: data
+    pytorch_version: 2.7.1+cu118
+mlflow_version: 3.14.0
+model_id: m-9307fdb38bed4dbeb64dfa4e30ad9722
+model_size_bytes: 6235263
+model_uuid: m-9307fdb38bed4dbeb64dfa4e30ad9722
+prompts: null
+run_id: fd1943a3ad4548eba3341c23a70f61e7
+utc_time_created: '2026-08-11 19:24:00.149064'
