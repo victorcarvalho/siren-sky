@@ -1,15 +1,29 @@
 import React from 'react'
 import './Buttons.css'
+import { Link } from 'react-router'
+import exifr from 'exifr'
 
 export function Buttons({ imageInfo, setImageInfo }) {
 	const inputRef = React.useRef();
-	function handleImages(e) {
+
+	async function handleImages(e) {
 		const files = Array.from(e.target.files);
-		if (!files) return;
+		if (!files.length) return;
 
 		files.forEach((file) => {
 			const img = new Image();
-			img.onload = () => {
+
+			img.onload = async () => {
+				const gps = await exifr.gps(file);
+
+				const latitude = gps && Number.isFinite(gps.latitude)
+					? gps.latitude
+					: "-";
+
+				const longitude = gps && Number.isFinite(gps.longitude)
+					? gps.longitude
+					: "-";
+
 				setImageInfo((prev) => [
 					...prev,
 					{
@@ -19,12 +33,17 @@ export function Buttons({ imageInfo, setImageInfo }) {
 						size: file.size,
 						width: img.width,
 						height: img.height,
+						latitude: latitude,
+						longitude: longitude,
 						state: "-"
-					}]);
+					}
+				]);
+
 				URL.revokeObjectURL(img.src);
 			};
+
 			img.src = URL.createObjectURL(file);
-		})
+		});
 	}
 
 	async function sendImage(image, index) {
@@ -63,13 +82,16 @@ export function Buttons({ imageInfo, setImageInfo }) {
 				hidden
 			/>
 			{imageInfo.length > 0 &&
-				<button onClick={() => {
-					imageInfo.forEach((i, index) => {
-						if (i.state === "-") {
-							sendImage(i.img, index)
-						}
-					})
-				}}>Classificar imagens</button>
+				<>
+					<button onClick={() => {
+						imageInfo.forEach((i, index) => {
+							if (i.state === "-") {
+								sendImage(i.img, index)
+							}
+						})
+					}}>Classificar imagens</button>
+					<Link to="/map"><button>Mapa</button></Link>
+				</>
 			}
 		</div>
 	)

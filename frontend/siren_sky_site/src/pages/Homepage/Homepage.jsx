@@ -1,12 +1,10 @@
-import React from 'react'
 import './Homepage.css'
-import { ImagesDisplay } from '../components/ImagesDisplay'
-import { Header } from '../components/Header'
-import { Buttons } from '../components/Buttons'
-import { Advice } from '../components/Advice'
+import { ImagesDisplay } from '../../components/ImagesDisplay/ImagesDisplay'
+import { Header } from '../../components/Header/Header'
+import { Buttons } from '../../components/Buttons/Buttons'
+import { Advice } from '../../components/Advice/Advice'
 
-export function Homepage() {
-	const [imageInfo, setImageInfo] = React.useState([]);
+export function Homepage({ imageInfo, setImageInfo }) {
 	return (
 		<>
 			<Header />
