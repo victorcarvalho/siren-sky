@@ -1,5 +1,6 @@
 import React from 'react'
 import './Buttons.css'
+import { Link } from 'react-router'
 import exifr from 'exifr'
 
 export function Buttons({ imageInfo, setImageInfo }) {
@@ -81,13 +82,16 @@ export function Buttons({ imageInfo, setImageInfo }) {
 				hidden
 			/>
 			{imageInfo.length > 0 &&
-				<button onClick={() => {
-					imageInfo.forEach((i, index) => {
-						if (i.state === "-") {
-							sendImage(i.img, index)
-						}
-					})
-				}}>Classificar imagens</button>
+				<>
+					<button onClick={() => {
+						imageInfo.forEach((i, index) => {
+							if (i.state === "-") {
+								sendImage(i.img, index)
+							}
+						})
+					}}>Classificar imagens</button>
+					<Link to="/map"><button>Mapa</button></Link>
+				</>
 			}
 		</div>
 	)
