@@ -1,8 +1,18 @@
+@import "../../variables.css";
+
 .buttons-component {
-	padding: 1.4rem 1.4rem;
+	margin-top: 2rem;
+	width: 70vw;
 	display: flex;
-	gap: 5rem;
-	background-color: rgb(0, 108, 208);
-	margin: 1rem 3rem 0;
-	border-radius: 1rem;
+	flex-direction: column;
+	gap: 1rem;
+
+	.buttons-title {
+		font-size: 2.2rem;
+	}
+
+	.buttons-dropArea {
+		border: 5px dashed var(--secondary-color);
+		border-radius: 10px;
+	}
 }

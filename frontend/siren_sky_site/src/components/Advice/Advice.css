@@ -1,4 +1,5 @@
 .advice {
+	display: none;
 	padding: 2rem 0;
 	background-color: rgb(0, 132, 255);
 	margin: 1rem 3rem;

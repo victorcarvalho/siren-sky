@@ -71,16 +71,33 @@ export function Buttons({ imageInfo, setImageInfo }) {
 		})
 	}
 	return (
-		<div className="buttons-component">
-			<button onClick={() => inputRef.current.click()}>Escolher imagem</button>
-			<input
-				multiple
-				ref={inputRef}
-				type="file"
-				accept="image/*"
-				onChange={handleImages}
-				hidden
-			/>
+		<div className='buttons-component'>
+			<h1 className="buttons-title">Enviar imagens para classificação</h1>
+			<div
+				className="buttons-dropArea"
+				onClick={() => inputRef.current.click()}
+				onDragOver={(event) => event.preventDefault()}
+			// onDrop={handleDrop}
+			>
+
+				<p>
+					Arraste e solte suas imagens aqui<br />
+					ou clique para selecionar
+				</p>
+
+				<button type="button">
+					Selecionar arquivos
+				</button>
+
+				<input
+					multiple
+					ref={inputRef}
+					type="file"
+					accept="image/*"
+					onChange={handleImages}
+					hidden
+				/>
+			</div>
 			{imageInfo.length > 0 &&
 				<>
 					<button onClick={() => {
