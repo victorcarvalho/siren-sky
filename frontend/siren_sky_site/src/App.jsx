@@ -10,8 +10,10 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Homepage imageInfo={imageInfo} setImageInfo={setImageInfo} />} />
-      <Route path="/sirensky" element={<Homepage />} />
-      <Route path="/map" element={<MapPage imageInfo={imageInfo} />} />
+      <Route path="/sirensky" element={<Homepage imageInfo={imageInfo} setImageInfo={setImageInfo} />} />
+      <Route path="/alert" element={<MapPage imageInfo={imageInfo} />} />
+      <Route path="/history" element={<p>Histórico.</p>} />
+      <Route path="/about" element={<p>Sobre.</p>} />
     </Routes>
   )
 }

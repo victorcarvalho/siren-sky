@@ -14,5 +14,28 @@
 	.buttons-dropArea {
 		border: 5px dashed var(--secondary-color);
 		border-radius: 10px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		padding: 2rem 0;
+		gap: 1.2rem;
+
+		&:hover {
+			cursor: pointer;
+		}
+
+		.buttons-dropArea-sendIcon {
+			width: 8%;
+			fill: var(--secondary-color);
+		}
+
+		.buttons-dropArea-description {
+			font-size: 1.6rem;
+		}
+	}
+
+	.buttons-classify {
+		width: fit-content;
 	}
 }

@@ -1,5 +1,6 @@
 .imagesdisplay {
 	margin: 0 3rem;
+	display: none;
 
 	table {
 		width: 100%;

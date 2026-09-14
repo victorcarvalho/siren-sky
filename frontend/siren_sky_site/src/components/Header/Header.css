@@ -1,9 +1,8 @@
 @import "../../variables.css";
 
 .siren-header {
-	width: 95vw;
-	height: 17vh;
-	overflow: hidden;
+	width: 95%;
+	min-height: 100px;
 	margin-top: 1.5rem;
 	border-radius: 5rem;
 	box-sizing: border-box;
@@ -23,7 +22,7 @@
 		}
 
 		img {
-			width: 100px;
+			width: 10%;
 		}
 	}
 
