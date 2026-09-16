@@ -1,0 +1,30 @@
+.info-component {
+	margin-top: 2rem;
+	width: 70vw;
+	display: flex;
+	justify-content: space-between;
+
+	.info-card {
+		background-color: #ebebeb;
+		box-shadow: 2px 2px 8px 0 rgba(0, 0, 0, .7);
+		flex-basis: 20%;
+		height: 150px;
+		border-radius: 20px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1.5rem;
+		box-sizing: border-box;
+		padding-top: 0.5rem;
+
+		.info-card-title {
+			font-weight: 600;
+		}
+
+		.info-card-number {
+			font-weight: 600;
+			font-size: 2rem;
+			margin: 0 auto;
+		}
+	}
+}
